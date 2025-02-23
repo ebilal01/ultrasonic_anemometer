@@ -22,6 +22,15 @@
             height: 250px;
             margin: 0 10px;
         }
+        #renderCanvas {
+            width: 1920px; /* 20 inches at 96 DPI */
+            height: 960px; /* 10 inches at 96 DPI */
+            max-width: 100vw; /* Responsive scaling */
+            max-height: 100vh;
+            display: block;
+            touch-action: none;
+            margin: 20px auto; /* Centered with some spacing */
+        }
     </style>
 </head>
 <body>
@@ -56,7 +65,7 @@
         <div id="stddev-wind-graph" class="graph"></div>
     </div>
 
-    <canvas id="renderCanvas" touch-action="none" style="width: 100%; height: 300px;"></canvas>
+    <canvas id="renderCanvas"></canvas>
 
     <div style="text-align: center;">
         <div style="margin-top: 10px; font-size: 16px;">
@@ -89,7 +98,7 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
     <script>
-        const BASE_URL = "https://ultrasonic-anemometer.onrender.com";
+        const BASE_URL = "https://tufts-anemometer3.onrender.com";
 
         const map = L.map('map').setView([0, 0], 2);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
@@ -251,17 +260,23 @@
 
         const updateStdDevWindGraph = (historyData) => {
             const timestamps = historyData.map(data => data.sent_time).filter(t => t);
-            const vstd1 = historyData.map(data => data.vstd_1_mps).filter(v => v !== undefined);
-            const vstd2 = historyData.map(data => data.vstd_2_mps).filter(v => v !== undefined);
-            const vstd3 = historyData.map(data => data.vstd_3_mps).filter(v => v !== undefined);
+            const avgStdDev = historyData.map(data => {
+                const vstd1 = data.vstd_1_mps || 0;
+                const vstd2 = data.vstd_2_mps || 0;
+                const vstd3 = data.vstd_3_mps || 0;
+                return (vstd1 + vstd2 + vstd3) / 3;
+            }).filter(v => v !== undefined);
 
-            if (timestamps.length === 0) return;
+            if (timestamps.length === 0 || avgStdDev.length === 0) return;
 
-            const graphData = [
-                { x: timestamps, y: vstd1, type: 'scatter', mode: 'lines+markers', name: 'Vstd 1 (m/s)', line: { color: 'red' } },
-                { x: timestamps, y: vstd2, type: 'scatter', mode: 'lines+markers', name: 'Vstd 2 (m/s)', line: { color: 'green' } },
-                { x: timestamps, y: vstd3, type: 'scatter', mode: 'lines+markers', name: 'Vstd 3 (m/s)', line: { color: 'blue' } }
-            ];
+            const graphData = [{
+                x: timestamps,
+                y: avgStdDev,
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: { color: 'blue' },
+                name: "Avg Std Dev (m/s)"
+            }];
 
             const layout = {
                 title: "Std Dev of Wind Over Time",
@@ -348,22 +363,23 @@
 
         const createScene = () => {
             const scene = new BABYLON.Scene(engine);
-            const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 20, BABYLON.Vector3.Zero(), scene);
+            const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 8, BABYLON.Vector3.Zero(), scene); // Reduced radius from 20 to 8
             camera.attachControl(canvas, true);
             const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), scene);
 
             let satellite;
-            BABYLON.SceneLoader.Append("./static/models/", "AnemometerAssembly.gltf", scene, () => {
-                satellite = scene.meshes[0];
+            BABYLON.SceneLoader.Append("./static/models/", "SATELLITE.gltf", scene, (loadedScene) => {
+                satellite = loadedScene.meshes[0];
                 satellite.position = BABYLON.Vector3.Zero();
+                satellite.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5); // Scale down model if too large
                 console.log("Satellite loaded and centered");
             });
 
             const createArrow = (name, color) => {
                 const arrow = BABYLON.MeshBuilder.CreateCylinder(name, {
-                    height: 1.5,
+                    height: 0.8, // Reduced from 1.5
                     diameterTop: 0,
-                    diameterBottom: 0.2
+                    diameterBottom: 0.1 // Reduced from 0.2
                 }, scene);
                 const arrowMaterial = new BABYLON.StandardMaterial(name + "Material", scene);
                 arrowMaterial.diffuseColor = color;
@@ -399,20 +415,23 @@
             satellite.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, pitch, roll);
 
             const vX = latest.vavg_1_mps || 0;
-            const vY = latest.vavg_2_mps ||0;
+            const vY = latest.vavg_2_mps || 0;
             const vZ = latest.vavg_3_mps || 0;
 
-            windArrows.x.scaling.y = Math.abs(vX) * 0.5;
+            // X-axis wind vector
+            windArrows.x.scaling.y = Math.abs(vX) * 0.3; // Reduced scaling factor from 0.5
             windArrows.x.rotation = new BABYLON.Vector3(0, 0, vX >= 0 ? 0 : Math.PI);
-            windArrows.x.position = new BABYLON.Vector3(vX >= 0 ? 2 : -2, 0, 0);
+            windArrows.x.position = new BABYLON.Vector3(vX >= 0 ? 3 : -3, 0, 0); // Increased spacing from 2 to 3
 
-            windArrows.y.scaling.y = Math.abs(vY) * 0.5;
+            // Y-axis wind vector
+            windArrows.y.scaling.y = Math.abs(vY) * 0.3; // Reduced scaling factor
             windArrows.y.rotation = new BABYLON.Vector3(vY >= 0 ? -Math.PI / 2 : Math.PI / 2, 0, 0);
-            windArrows.y.position = new BABYLON.Vector3(0, vY >= 0 ? 2 : -2, 0);
+            windArrows.y.position = new BABYLON.Vector3(0, vY >= 0 ? 3 : -3, 0); // Increased spacing
 
-            windArrows.z.scaling.y = Math.abs(vZ) * 0.5;
+            // Z-axis wind vector
+            windArrows.z.scaling.y = Math.abs(vZ) * 0.3; // Reduced scaling factor
             windArrows.z.rotation = new BABYLON.Vector3(0, vZ >= 0 ? Math.PI / 2 : -Math.PI / 2, 0);
-            windArrows.z.position = new BABYLON.Vector3(0, 0, vZ >= 0 ? 2 : -2);
+            windArrows.z.position = new BABYLON.Vector3(0, 0, vZ >= 0 ? 3 : -3); // Increased spacing
         };
 
         engine.runRenderLoop(() => {
