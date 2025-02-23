@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Data Visualization</title>
+    <link rel="stylesheet" href="/static/format.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css">
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.0/socket.io.js"></script>
+    <script src="https://cdn.babylonjs.com/earcut.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h3>Flight Data Visualization</h3>
+            <h6>Professor Robert White Ph.D.</h6>
+        </div>
+        <nav>
+            <ul class="nav_links">
+                <li><a href="https://sites.tufts.edu/senselab/research/#anemometer">MSS Lab Site</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div id="map" style="height: 500px; width: 100%;"></div>
+    <div id="graph" style="height: 300px; width: 100%; margin-top: 20px;"></div>
+    <canvas id="renderCanvas" touch-action="none" style="width: 100%; height: 300px;"></canvas>
+    <div id="temperature-graph" style="height: 300px; width: 100%; margin-top: 20px;"></div>
+
+    <div style="text-align: center;">
+        <div style="margin-top: 10px; font-size: 16px;">
+            Latitude: <span id="lat">0</span>
+        </div>
+        <div style="margin-top: 10px; font-size: 16px;">
+            Longitude: <span id="lon">0</span>
+        </div>
+        <div style="margin-top: 10px; font-size: 16px;">
+            Temperature: <span id="temp">0</span> °C
+        </div>
+        <div style="margin-top: 10px; font-size: 16px;">
+            Pressure: <span id="pressure">0</span> mbar
+        </div>
+
+        <div>
+            <h2>Latest Message:</h2>
+            <p id="latest-message">No messages yet.</p>
+        </div>
+
+        <div>
+            <h2>Message History:</h2>
+            <ul id="message-history" style="display: inline-block; text-align: left;"></ul>
+        </div>
+
+        <div id="download-section" style="margin-top: 20px;">
+            <a href="/download-history" class="btn" download style="text-decoration: none; color: white; background-color: #007BFF; padding: 10px 15px; border-radius: 5px; font-size: 16px;">
+                Download History as CSV
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <script>
+        const BASE_URL = "https://ultrasonic-anemometer.onrender.com";
+
+        const map = L.map('map').setView([0, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+        const flightPath = L.polyline([], { color: 'red' }).addTo(map);
+        const marker = L.marker([0, 0]).addTo(map);
+
+        const updateMap = (historyData) => {
+            flightPath.setLatLngs([]);
+            historyData.forEach(data => {
+                if (data.latitude && data.longitude) {
+                    const latLng = [data.latitude, data.longitude];
+                    flightPath.addLatLng(latLng);
+                }
+            });
+            const latest = historyData[historyData.length - 1];
+            if (latest && latest.latitude && latest.longitude) {
+                marker.setLatLng([latest.latitude, latest.longitude]);
+                document.getElementById('lat').textContent = latest.latitude.toFixed(6);
+                document.getElementById('lon').textContent = latest.longitude.toFixed(6);
+                if (flightPath.getLatLngs().length > 1) {
+                    map.fitBounds(flightPath.getBounds());
+                }
+            }
+        };
+
+        const updateGraph = (historyData) => {
+            const timestamps = historyData.map(data => data.sent_time).filter(t => t);
+            const altitudes = historyData.map(data => data.altitude).filter(a => a !== undefined);
+
+            if (timestamps.length === 0 || altitudes.length === 0) return;
+
+            const graphData = [{
+                x: timestamps,
+                y: altitudes,
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: { color: 'blue' },
+                name: "Altitude (m)"
+            }];
+
+            const layout = {
+                title: "Altitude Over Time",
+                xaxis: { title: "Time" },
+                yaxis: { title: "Altitude (m)" }
+            };
+
+            Plotly.react('graph', graphData, layout);
+        };
+
+        const updateTemperatureGraph = (historyData) => {
+            const timestamps = historyData.map(data => data.sent_time).filter(t => t);
+            const temperatures = historyData.map(data => data.temperature_cj_c).filter(t => t !== undefined);
+
+            if (timestamps.length === 0 || temperatures.length === 0) return;
+
+            const tempGraphData = [{
+                x: timestamps,
+                y: temperatures,
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: { color: 'red' },
+                name: "Temperature (°C)"
+            }];
+
+            const layout = {
+                title: "Temperature Over Time",
+                xaxis: { title: "Time" },
+                yaxis: { title: "Temperature (°C)" }
+            };
+
+            Plotly.react('temperature-graph', tempGraphData, layout);
+
+            const latest = historyData[historyData.length - 1];
+            if (latest) {
+                if (latest.temperature_cj_c !== undefined) {
+                    document.getElementById("temp").textContent = latest.temperature_cj_c.toFixed(1);
+                }
+                if (latest.pressure_mbar !== undefined) {
+                    document.getElementById("pressure").textContent = latest.pressure_mbar.toFixed(1);
+                }
+            }
+        };
+
+        const fetchAndUpdateAll = async () => {
+            try {
+                const response = await fetch(`${BASE_URL}/history`);
+                if (!response.ok) {
+                    console.error(`Fetch failed with status: ${response.status}`);
+                    return;
+                }
+                const historyData = await response.json();
+                if (historyData.length > 0) {
+                    updateMap(historyData);
+                    updateGraph(historyData);
+                    updateTemperatureGraph(historyData);
+                    updateWindVectors(historyData);
+                }
+            } catch (error) {
+                console.error("Error fetching history:", error);
+            }
+        };
+
+        const fetchHistory = async () => {
+            await fetchAndUpdateAll();
+        };
+
+        window.onload = async () => {
+            await fetchHistory();
+            setInterval(fetchAndUpdateAll, 1000);
+        };
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchMessageHistory();
+            fetchLatestMessage();
+        });
+
+        async function fetchLatestMessage() {
+            try {
+                const response = await fetch(`${BASE_URL}/live-data`);
+                if (!response.ok) return;
+                const data = await response.json();
+                if (data.message) {
+                    document.getElementById('latest-message').textContent = `Message: ${data.message}`;
+                } else {
+                    document.getElementById('latest-message').textContent = `Received structured data at ${data.received_time}`;
+                }
+            } catch (error) {
+                console.error("Error fetching latest message:", error);
+            }
+        }
+
+        async function fetchMessageHistory() {
+            try {
+                const response = await fetch(`${BASE_URL}/message-history`);
+                if (!response.ok) return;
+                const historyData = await response.json();
+
+                const historyList = document.getElementById('message-history');
+                historyList.innerHTML = '';
+                historyData.forEach((msg) => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `(${msg.received_time}) Msg: ${msg.message} | Lat: ${msg.latitude}, Lon: ${msg.longitude}`;
+                    historyList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error("Error fetching message history:", error);
+            }
+        }
+
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+
+        const createScene = () => {
+            const scene = new BABYLON.Scene(engine);
+            const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 20, BABYLON.Vector3.Zero(), scene);
+            camera.attachControl(canvas, true);
+            const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), scene);
+
+            let satellite;
+            BABYLON.SceneLoader.Append("./static/models/", "AnemometerAssembly.gltf", scene, () => {
+                satellite = scene.meshes[0];
+                satellite.position = BABYLON.Vector3.Zero();
+                console.log("Satellite loaded and centered");
+            });
+
+            const createArrow = (name, color) => {
+                const arrow = BABYLON.MeshBuilder.CreateCylinder(name, {
+                    height: 1.5,
+                    diameterTop: 0,
+                    diameterBottom: 0.2
+                }, scene);
+                const arrowMaterial = new BABYLON.StandardMaterial(name + "Material", scene);
+                arrowMaterial.diffuseColor = color;
+                arrow.material = arrowMaterial;
+                arrow.position = new BABYLON.Vector3(2, 0, 0);
+                return arrow;
+            };
+
+            const windArrows = {
+                x: createArrow("windX", new BABYLON.Color3(1, 0, 0)),
+                y: createArrow("windY", new BABYLON.Color3(0, 1, 0)),
+                z: createArrow("windZ", new BABYLON.Color3(0, 0, 1))
+            };
+
+            return { scene, windArrows };
+        };
+
+        const { scene, windArrows } = createScene();
+
+        const updateWindVectors = (historyData) => {
+            const latest = historyData[historyData.length - 1];
+            if (!latest) return;
+
+            const vX = latest.vavg_1_mps || 0;
+            const vY = latest.vavg_2_mps || 0;
+            const vZ = latest.vavg_3_mps || 0;
+
+            windArrows.x.scaling.y = Math.abs(vX) * 0.5;
+            windArrows.x.rotation = new BABYLON.Vector3(0, 0, vX >= 0 ? 0 : Math.PI);
+            windArrows.x.position = new BABYLON.Vector3(vX >= 0 ? 2 : -2, 0, 0);
+
+            windArrows.y.scaling.y = Math.abs(vY) * 0.5;
+            windArrows.y.rotation = new BABYLON.Vector3(vY >= 0 ? -Math.PI / 2 : Math.PI / 2, 0, 0);
+            windArrows.y.position = new BABYLON.Vector3(0, vY >= 0 ? 2 : -2, 0);
+
+            windArrows.z.scaling.y = Math.abs(vZ) * 0.5;
+            windArrows.z.rotation = new BABYLON.Vector3(0, vZ >= 0 ? Math.PI / 2 : -Math.PI / 2, 0);
+            windArrows.z.position = new BABYLON.Vector3(0, 0, vZ >= 0 ? 2 : -2);
+        };
+
+        engine.runRenderLoop(() => {
+            scene.render();
+        });
+
+        window.addEventListener("resize", () => {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>
