@@ -358,32 +358,32 @@
             }
         }
 
-        const canvas = document.getElementById("renderCanvas");
+         const canvas = document.getElementById("renderCanvas");
         const engine = new BABYLON.Engine(canvas, true);
 
         const createScene = () => {
             const scene = new BABYLON.Scene(engine);
-            const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 8, BABYLON.Vector3.Zero(), scene); // Reduced radius from 20 to 8
+            const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 20, BABYLON.Vector3.Zero(), scene);
             camera.attachControl(canvas, true);
             const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), scene);
 
             let satellite;
-            BABYLON.SceneLoader.Append("./static/models/", "AnemometerAssembly.gltf", scene, (loadedScene) => {
-                satellite = loadedScene.meshes[0];
+            BABYLON.SceneLoader.Append("./static/models/", "AnemometerAssembly.gltf", scene, () => {
+                satellite = scene.meshes[0];
                 satellite.position = BABYLON.Vector3.Zero();
-                satellite.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5); // Scale down model if too large
                 console.log("Satellite loaded and centered");
             });
 
             const createArrow = (name, color) => {
                 const arrow = BABYLON.MeshBuilder.CreateCylinder(name, {
-                    height: 0.8, // Reduced from 1.5
+                    height: 1.5,
                     diameterTop: 0,
-                    diameterBottom: 0.1 // Reduced from 0.2
+                    diameterBottom: 0.2
                 }, scene);
                 const arrowMaterial = new BABYLON.StandardMaterial(name + "Material", scene);
                 arrowMaterial.diffuseColor = color;
                 arrow.material = arrowMaterial;
+                arrow.position = new BABYLON.Vector3(2, 0, 0);
                 return arrow;
             };
 
@@ -393,45 +393,30 @@
                 z: createArrow("windZ", new BABYLON.Color3(0, 0, 1))
             };
 
-            if (satellite) {
-                windArrows.x.parent = satellite;
-                windArrows.y.parent = satellite;
-                windArrows.z.parent = satellite;
-            }
-
-            return { scene, satellite, windArrows };
+            return { scene, windArrows };
         };
 
-        const { scene, satellite, windArrows } = createScene();
+        const { scene, windArrows } = createScene();
 
-        const updateModelAndVectors = (historyData) => {
+        const updateWindVectors = (historyData) => {
             const latest = historyData[historyData.length - 1];
-            if (!latest || !satellite) return;
-
-            const pitch = BABYLON.Tools.ToRadians(latest.pitch_deg || 0);
-            const roll = BABYLON.Tools.ToRadians(latest.roll_deg || 0);
-            const yaw = BABYLON.Tools.ToRadians(latest.yaw_deg || 0);
-
-            satellite.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, pitch, roll);
+            if (!latest) return;
 
             const vX = latest.vavg_1_mps || 0;
             const vY = latest.vavg_2_mps || 0;
             const vZ = latest.vavg_3_mps || 0;
 
-            // X-axis wind vector
-            windArrows.x.scaling.y = Math.abs(vX) * 0.3; // Reduced scaling factor from 0.5
+            windArrows.x.scaling.y = Math.abs(vX) * 0.5;
             windArrows.x.rotation = new BABYLON.Vector3(0, 0, vX >= 0 ? 0 : Math.PI);
-            windArrows.x.position = new BABYLON.Vector3(vX >= 0 ? 3 : -3, 0, 0); // Increased spacing from 2 to 3
+            windArrows.x.position = new BABYLON.Vector3(vX >= 0 ? 2 : -2, 0, 0);
 
-            // Y-axis wind vector
-            windArrows.y.scaling.y = Math.abs(vY) * 0.3; // Reduced scaling factor
+            windArrows.y.scaling.y = Math.abs(vY) * 0.5;
             windArrows.y.rotation = new BABYLON.Vector3(vY >= 0 ? -Math.PI / 2 : Math.PI / 2, 0, 0);
-            windArrows.y.position = new BABYLON.Vector3(0, vY >= 0 ? 3 : -3, 0); // Increased spacing
+            windArrows.y.position = new BABYLON.Vector3(0, vY >= 0 ? 2 : -2, 0);
 
-            // Z-axis wind vector
-            windArrows.z.scaling.y = Math.abs(vZ) * 0.3; // Reduced scaling factor
+            windArrows.z.scaling.y = Math.abs(vZ) * 0.5;
             windArrows.z.rotation = new BABYLON.Vector3(0, vZ >= 0 ? Math.PI / 2 : -Math.PI / 2, 0);
-            windArrows.z.position = new BABYLON.Vector3(0, 0, vZ >= 0 ? 3 : -3); // Increased spacing
+            windArrows.z.position = new BABYLON.Vector3(0, 0, vZ >= 0 ? 2 : -2);
         };
 
         engine.runRenderLoop(() => {
