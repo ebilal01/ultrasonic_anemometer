@@ -160,7 +160,7 @@
                     updateMap(historyData);
                     updateGraph(historyData);
                     updateTemperatureGraph(historyData);
-                    updateWindVectors(historyData);
+                    updateModelAndVectors(historyData);  // Updated function name
                 }
             } catch (error) {
                 console.error("Error fetching history:", error);
@@ -239,37 +239,54 @@
                 const arrowMaterial = new BABYLON.StandardMaterial(name + "Material", scene);
                 arrowMaterial.diffuseColor = color;
                 arrow.material = arrowMaterial;
-                arrow.position = new BABYLON.Vector3(2, 0, 0);
                 return arrow;
             };
 
             const windArrows = {
-                x: createArrow("windX", new BABYLON.Color3(1, 0, 0)),
-                y: createArrow("windY", new BABYLON.Color3(0, 1, 0)),
-                z: createArrow("windZ", new BABYLON.Color3(0, 0, 1))
+                x: createArrow("windX", new BABYLON.Color3(1, 0, 0)),  // Red for vavg_1_mps (X)
+                y: createArrow("windY", new BABYLON.Color3(0, 1, 0)),  // Green for vavg_2_mps (Y)
+                z: createArrow("windZ", new BABYLON.Color3(0, 0, 1))   // Blue for vavg_3_mps (Z)
             };
 
-            return { scene, windArrows };
+            // Make arrows children of the satellite so they rotate with it
+            if (satellite) {
+                windArrows.x.parent = satellite;
+                windArrows.y.parent = satellite;
+                windArrows.z.parent = satellite;
+            }
+
+            return { scene, satellite, windArrows };
         };
 
-        const { scene, windArrows } = createScene();
+        const { scene, satellite, windArrows } = createScene();
 
-        const updateWindVectors = (historyData) => {
+        const updateModelAndVectors = (historyData) => {
             const latest = historyData[historyData.length - 1];
-            if (!latest) return;
+            if (!latest || !satellite) return;
 
-            const vX = latest.vavg_1_mps || 0;
-            const vY = latest.vavg_2_mps || 0;
-            const vZ = latest.vavg_3_mps || 0;
+            const pitch = BABYLON.Tools.ToRadians(latest.pitch_deg || 0);  // Pitch (X-axis rotation)
+            const roll = BABYLON.Tools.ToRadians(latest.roll_deg || 0);    // Roll (Z-axis rotation)
+            const yaw = BABYLON.Tools.ToRadians(latest.yaw_deg || 0);      // Yaw (Y-axis rotation)
 
+            // Apply pitch, roll, and yaw to the satellite
+            satellite.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, pitch, roll);
+
+            // Update wind vectors (relative to model)
+            const vX = latest.vavg_1_mps || 0;  // Wind velocity X
+            const vY = latest.vavg_2_mps || 0;  // Wind velocity Y
+            const vZ = latest.vavg_3_mps || 0;  // Wind velocity Z
+
+            // X arrow (along model’s local X-axis)
             windArrows.x.scaling.y = Math.abs(vX) * 0.5;
             windArrows.x.rotation = new BABYLON.Vector3(0, 0, vX >= 0 ? 0 : Math.PI);
             windArrows.x.position = new BABYLON.Vector3(vX >= 0 ? 2 : -2, 0, 0);
 
+            // Y arrow (along model’s local Y-axis)
             windArrows.y.scaling.y = Math.abs(vY) * 0.5;
             windArrows.y.rotation = new BABYLON.Vector3(vY >= 0 ? -Math.PI / 2 : Math.PI / 2, 0, 0);
             windArrows.y.position = new BABYLON.Vector3(0, vY >= 0 ? 2 : -2, 0);
 
+            // Z arrow (along model’s local Z-axis)
             windArrows.z.scaling.y = Math.abs(vZ) * 0.5;
             windArrows.z.rotation = new BABYLON.Vector3(0, vZ >= 0 ? Math.PI / 2 : -Math.PI / 2, 0);
             windArrows.z.position = new BABYLON.Vector3(0, 0, vZ >= 0 ? 2 : -2);
