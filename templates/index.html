@@ -79,6 +79,11 @@
             Pressure: <span id="pressure">0</span> mbar
         </div>
         <div>
+            <h6 style = "text-align: center">About the Site</h6>   
+  <p style = "text-align: center"> The goals of this site are to monitor flight data without needing to wait for SD card retreival, and to create a platform to share the recorded high altitude wind anemometry data with the global scientific community. This Pyscript Webhook site recieves hex encoded messages sent from a mission balloon mounted Arduino based Artemis Global Tracker over the Iridium Network through RockBlock. The backend pytthon file then parses that message and updates the map, graphs and model to display the data live on the front end html file. This web service is hosted on Render and message data is saved onto a persistent disk. </p>
+
+    </div>
+        <div>
             <h2>Latest Message:</h2>
             <p id="latest-message">No messages yet.</p>
         </div>
@@ -92,13 +97,6 @@
             </a>
         </div>
     </div>
-    <article>
-            <h6 style = "text-align: center">About the Site</h6>   
-  <h2 style = "text-align: center"> The goals of this site are to monitor flight data without needing to wait for SD card retreival, and to create a platform to share the recorded high altitude wind anemometry data with the global scientific community. </h2>
-<h2 style = "text-align: center">This Pyscript Webhook site recieves hex encoded messages sent from a mission balloon mounted Arduino based Artemis Global Tracker over the Iridium Network through RockBlock. The backend pytthon file then parses that message and updates the map, graphs and model to display the data live on the front end html file. This web service is hosted on Render and message data is saved onto a persistent disk. </h2>
-    </article>
-
-    
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
     <script>
