@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satellite Data Display</title>
+    <link rel="stylesheet" type="text/css" href="static/format.css">
+    <!-- Leaflet.js and its CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<header>
+    <div class="header-content">
+        <h3>Satellite Network Data Display</h3>
+        <h6>Professor Robert White Ph.D.</h6>
+    </div>
+    <nav>
+        <ul class="nav_links">
+            <li><a href="https://sites.tufts.edu/senselab/research/#anemometer">MSS Lab Site</a></li>
+        </ul>
+    </nav>
+</header>
+
+<!-- Map Container -->
+<div id="map" style="height: 500px; margin-bottom: 20px;"></div>
+
+<!-- Graph Container -->
+<canvas id="altitudeChart" width="400" height="200"></canvas>
+
+<script>
+    const BASE_URL = 'https://iridium-data-display.onrender.com'; // Flask backend URL
+
+    // Map Setup (Leaflet)
+    const map = L.map('map').setView([0, 0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    const marker = L.marker([0, 0]).addTo(map);
+    const flightPath = [];
+    const pathLine = L.polyline(flightPath, { color: 'blue' }).addTo(map);
+
+    // Chart.js setup for altitude graph
+    const ctx = document.getElementById('altitudeChart').getContext('2d');
+    const altitudeChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [], // Time labels
+            datasets: [{
+                label: 'Altitude (m)',
+                data: [], // Altitude data
+                borderColor: 'rgb(75, 192, 192)',
+                fill: false
+            }]
+        },
+        options: {
+            scales: {
+                x: { type: 'time', time: { unit: 'second' }, title: { display: true, text: 'Time' } },
+                y: { beginAtZero: true, title: { display: true, text: 'Altitude (m)' } }
+            }
+        }
+    });
+
+    // Fetch live data and update map and chart
+    async function updateLiveData() {
+        try {
+            const response = await fetch(`${BASE_URL}/live-data`);
+            if (!response.ok) throw new Error("No live data available.");
+            const { latitude, longitude, altitude, temperature, time } = await response.json();
+
+            console.log("Received data:", { latitude, longitude, altitude, time });
+
+            if (latitude && longitude) {
+                // Update map marker and path
+                marker.setLatLng([latitude, longitude]);
+                marker.bindPopup(`Satellite Location<br>Lat: ${latitude}, Long: ${longitude}<br>Alt: ${altitude}m<br>Temp: ${temperature}°C`).openPopup();
+
+                // Update flight path on the map
+                flightPath.push([latitude, longitude]);
+                pathLine.setLatLngs(flightPath);
+                map.fitBounds(pathLine.getBounds());
+
+                // Update chart
+                altitudeChart.data.labels.push(time);
+                altitudeChart.data.datasets[0].data.push(altitude);
+                altitudeChart.update();
+
+                // Limit chart size for readability
+                if (altitudeChart.data.labels.length > 20) {
+                    altitudeChart.data.labels.shift();
+                    altitudeChart.data.datasets[0].data.shift();
+                }
+            }
+        } catch (error) {
+            console.error("Error updating live data:", error);
+        }
+    }
+
+    // Poll live data every 5 seconds
+    setInterval(updateLiveData, 5000);
+</script>
+
+</body>
+</html>
