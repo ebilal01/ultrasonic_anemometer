@@ -89,7 +89,7 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
     <script>
-        const BASE_URL = "https://tufts-anemometer3.onrender.com";
+        const BASE_URL = "https://ultrasonic-anemometer.onrender.com";
 
         const map = L.map('map').setView([0, 0], 2);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
@@ -353,7 +353,7 @@
             const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), scene);
 
             let satellite;
-            BABYLON.SceneLoader.Append("./static/models/", "SATELLITE.gltf", scene, () => {
+            BABYLON.SceneLoader.Append("./static/models/", "AnemometerAssembly.gltf", scene, () => {
                 satellite = scene.meshes[0];
                 satellite.position = BABYLON.Vector3.Zero();
                 console.log("Satellite loaded and centered");
