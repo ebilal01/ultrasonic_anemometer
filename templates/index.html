@@ -22,14 +22,12 @@
             height: 250px;
             margin: 0 10px;
         }
+        /* Match previous version's canvas size */
         #renderCanvas {
-            width: 1920px; /* 20 inches at 96 DPI */
-            height: 960px; /* 10 inches at 96 DPI */
-            max-width: 100vw; /* Responsive scaling */
-            max-height: 100vh;
+            width: 100%;
+            height: 300px;
             display: block;
             touch-action: none;
-            margin: 20px auto; /* Centered with some spacing */
         }
     </style>
 </head>
@@ -304,7 +302,7 @@
                     updatePressureGraph(historyData);
                     updateAverageWindGraph(historyData);
                     updateStdDevWindGraph(historyData);
-                    updateModelAndVectors(historyData);
+                    updateWindVectors(historyData); // Changed to match old version
                 }
             } catch (error) {
                 console.error("Error fetching history:", error);
@@ -363,23 +361,23 @@
 
         const createScene = () => {
             const scene = new BABYLON.Scene(engine);
-            const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 5, BABYLON.Vector3.Zero(), scene); // Reduced from 8 to 5
+            const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 4, BABYLON.Vector3.Zero(), scene); // Zoomed in from 20 to 4
             camera.attachControl(canvas, true);
             const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), scene);
 
             let satellite;
-            BABYLON.SceneLoader.Append("./static/models/", "AnemometerAssembly.gltf", scene, (loadedScene) => {
-                satellite = loadedScene.meshes[0];
+            BABYLON.SceneLoader.Append("./static/models/", "AnemometerAssembly.gltf", scene, () => {
+                satellite = scene.meshes[0];
                 satellite.position = BABYLON.Vector3.Zero();
-                satellite.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5); // Keep model scaled down
+                satellite.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5); // Adjust if needed
                 console.log("Anemometer loaded and centered");
             });
 
             const createArrow = (name, color, initialPosition) => {
                 const arrow = BABYLON.MeshBuilder.CreateCylinder(name, {
-                    height: 0.5, // Reduced from 0.8
+                    height: 0.3, // Smaller than 1.5 for new model
                     diameterTop: 0,
-                    diameterBottom: 0.05 // Reduced from 0.1
+                    diameterBottom: 0.03 // Smaller than 0.2
                 }, scene);
                 const arrowMaterial = new BABYLON.StandardMaterial(name + "Material", scene);
                 arrowMaterial.diffuseColor = color;
@@ -389,44 +387,37 @@
             };
 
             const windArrows = {
-                x: createArrow("windX", new BABYLON.Color3(1, 0, 0), new BABYLON.Vector3(2, 0, 0)), // Offset from model
-                y: createArrow("windY", new BABYLON.Color3(0, 1, 0), new BABYLON.Vector3(0, 2, 0)),
-                z: createArrow("windZ", new BABYLON.Color3(0, 0, 1), new BABYLON.Vector3(0, 0, 2))
+                x: createArrow("windX", new BABYLON.Color3(1, 0, 0), new BABYLON.Vector3(1, 0, 0)), // Offset from model
+                y: createArrow("windY", new BABYLON.Color3(0, 1, 0), new BABYLON.Vector3(0, 1, 0)),
+                z: createArrow("windZ", new BABYLON.Color3(0, 0, 1), new BABYLON.Vector3(0, 0, 1))
             };
 
-            return { scene, satellite, windArrows };
+            return { scene, windArrows };
         };
 
-        const { scene, satellite, windArrows } = createScene();
+        const { scene, windArrows } = createScene();
 
-        const updateModelAndVectors = (historyData) => {
+        const updateWindVectors = (historyData) => {
             const latest = historyData[historyData.length - 1];
-            if (!latest || !satellite) return;
+            if (!latest) return;
 
-            // Apply pitch, roll, yaw to the satellite model
-            const pitch = BABYLON.Tools.ToRadians(latest.pitch_deg || 0);
-            const roll = BABYLON.Tools.ToRadians(latest.roll_deg || 0);
-            const yaw = BABYLON.Tools.ToRadians(latest.yaw_deg || 0);
-            satellite.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, pitch, roll);
-
-            // Update wind vectors
             const vX = latest.vavg_1_mps || 0;
             const vY = latest.vavg_2_mps || 0;
             const vZ = latest.vavg_3_mps || 0;
 
-            windArrows.x.scaling.y = Math.abs(vX) * 0.2; // Reduced from 0.3
+            windArrows.x.scaling.y = Math.abs(vX) * 0.5;
             windArrows.x.rotation = new BABYLON.Vector3(0, 0, vX >= 0 ? 0 : Math.PI);
-            windArrows.x.position = new BABYLON.Vector3(vX >= 0 ? 2 : -2, 0, 0); // Consistent offset
+            windArrows.x.position = new BABYLON.Vector3(vX >= 0 ? 1 : -1, 0, 0);
 
-            windArrows.y.scaling.y = Math.abs(vY) * 0.2;
+            windArrows.y.scaling.y = Math.abs(vY) * 0.5;
             windArrows.y.rotation = new BABYLON.Vector3(vY >= 0 ? -Math.PI / 2 : Math.PI / 2, 0, 0);
-            windArrows.y.position = new BABYLON.Vector3(0, vY >= 0 ? 2 : -2, 0);
+            windArrows.y.position = new BABYLON.Vector3(0, vY >= 0 ? 1 : -1, 0);
 
-            windArrows.z.scaling.y = Math.abs(vZ) * 0.2;
+            windArrows.z.scaling.y = Math.abs(vZ) * 0.5;
             windArrows.z.rotation = new BABYLON.Vector3(0, vZ >= 0 ? Math.PI / 2 : -Math.PI / 2, 0);
-            windArrows.z.position = new BABYLON.Vector3(0, 0, vZ >= 0 ? 2 : -2);
+            windArrows.z.position = new BABYLON.Vector3(0, 0, vZ >= 0 ? 1 : -1);
 
-            console.log(`Updating vectors: vX=${vX}, vY=${vY}, vZ=${vZ}`); // Debug log
+            console.log(`Wind vectors: vX=${vX}, vY=${vY}, vZ=${vZ}`); // Debug log
         };
 
         engine.runRenderLoop(() => {
