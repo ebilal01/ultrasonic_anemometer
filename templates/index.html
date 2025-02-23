@@ -11,6 +11,18 @@
     <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.0/socket.io.js"></script>
     <script src="https://cdn.babylonjs.com/earcut.min.js"></script>
+    <style>
+        .graph-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .graph {
+            width: 45%;
+            height: 250px;
+            margin: 0 10px;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -25,9 +37,26 @@
         </nav>
     </header>
     <div id="map" style="height: 500px; width: 100%;"></div>
-    <div id="graph" style="height: 300px; width: 100%; margin-top: 20px;"></div>
+
+    <!-- Row 1: Altitude and Temperature -->
+    <div class="graph-container">
+        <div id="altitude-graph" class="graph"></div>
+        <div id="temperature-graph" class="graph"></div>
+    </div>
+
+    <!-- Row 2: Orientation and Pressure -->
+    <div class="graph-container">
+        <div id="orientation-graph" class="graph"></div>
+        <div id="pressure-graph" class="graph"></div>
+    </div>
+
+    <!-- Row 3: Average Wind and Std Dev Wind -->
+    <div class="graph-container">
+        <div id="average-wind-graph" class="graph"></div>
+        <div id="stddev-wind-graph" class="graph"></div>
+    </div>
+
     <canvas id="renderCanvas" touch-action="none" style="width: 100%; height: 300px;"></canvas>
-    <div id="temperature-graph" style="height: 300px; width: 100%; margin-top: 20px;"></div>
 
     <div style="text-align: center;">
         <div style="margin-top: 10px; font-size: 16px;">
@@ -42,17 +71,14 @@
         <div style="margin-top: 10px; font-size: 16px;">
             Pressure: <span id="pressure">0</span> mbar
         </div>
-
         <div>
             <h2>Latest Message:</h2>
             <p id="latest-message">No messages yet.</p>
         </div>
-
         <div>
             <h2>Message History:</h2>
             <ul id="message-history" style="display: inline-block; text-align: left;"></ul>
         </div>
-
         <div id="download-section" style="margin-top: 20px;">
             <a href="/download-history" class="btn" download style="text-decoration: none; color: white; background-color: #007BFF; padding: 10px 15px; border-radius: 5px; font-size: 16px;">
                 Download History as CSV
@@ -63,7 +89,7 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
     <script>
-        const BASE_URL = "https://ultrasonic-anemometer.onrender.com";
+        const BASE_URL = "https://tufts-anemometer3.onrender.com";
 
         const map = L.map('map').setView([0, 0], 2);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
@@ -90,7 +116,7 @@
             }
         };
 
-        const updateGraph = (historyData) => {
+        const updateAltitudeGraph = (historyData) => {
             const timestamps = historyData.map(data => data.sent_time).filter(t => t);
             const altitudes = historyData.map(data => data.altitude).filter(a => a !== undefined);
 
@@ -108,10 +134,11 @@
             const layout = {
                 title: "Altitude Over Time",
                 xaxis: { title: "Time" },
-                yaxis: { title: "Altitude (m)" }
+                yaxis: { title: "Altitude (m)" },
+                margin: { t: 40, b: 40, l: 40, r: 20 }
             };
 
-            Plotly.react('graph', graphData, layout);
+            Plotly.react('altitude-graph', graphData, layout);
         };
 
         const updateTemperatureGraph = (historyData) => {
@@ -132,7 +159,8 @@
             const layout = {
                 title: "Temperature Over Time",
                 xaxis: { title: "Time" },
-                yaxis: { title: "Temperature (°C)" }
+                yaxis: { title: "Temperature (°C)" },
+                margin: { t: 40, b: 40, l: 40, r: 20 }
             };
 
             Plotly.react('temperature-graph', tempGraphData, layout);
@@ -148,6 +176,103 @@
             }
         };
 
+        const updateOrientationGraph = (historyData) => {
+            const timestamps = historyData.map(data => data.sent_time).filter(t => t);
+            const pitch = historyData.map(data => data.pitch_deg).filter(p => p !== undefined);
+            const roll = historyData.map(data => data.roll_deg).filter(r => r !== undefined);
+            const yaw = historyData.map(data => data.yaw_deg).filter(y => y !== undefined);
+
+            if (timestamps.length === 0) return;
+
+            const graphData = [
+                { x: timestamps, y: pitch, type: 'scatter', mode: 'lines+markers', name: 'Pitch (°)', line: { color: 'blue' } },
+                { x: timestamps, y: roll, type: 'scatter', mode: 'lines+markers', name: 'Roll (°)', line: { color: 'green' } },
+                { x: timestamps, y: yaw, type: 'scatter', mode: 'lines+markers', name: 'Yaw (°)', line: { color: 'purple' } }
+            ];
+
+            const layout = {
+                title: "Orientation Over Time",
+                xaxis: { title: "Time" },
+                yaxis: { title: "Degrees" },
+                margin: { t: 40, b: 40, l: 40, r: 20 }
+            };
+
+            Plotly.react('orientation-graph', graphData, layout);
+        };
+
+        const updatePressureGraph = (historyData) => {
+            const timestamps = historyData.map(data => data.sent_time).filter(t => t);
+            const pressures = historyData.map(data => data.pressure_mbar).filter(p => p !== undefined);
+
+            if (timestamps.length === 0 || pressures.length === 0) return;
+
+            const graphData = [{
+                x: timestamps,
+                y: pressures,
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: { color: 'orange' },
+                name: "Pressure (mbar)"
+            }];
+
+            const layout = {
+                title: "Pressure Over Time",
+                xaxis: { title: "Time" },
+                yaxis: { title: "Pressure (mbar)" },
+                margin: { t: 40, b: 40, l: 40, r: 20 }
+            };
+
+            Plotly.react('pressure-graph', graphData, layout);
+        };
+
+        const updateAverageWindGraph = (historyData) => {
+            const timestamps = historyData.map(data => data.sent_time).filter(t => t);
+            const vavg1 = historyData.map(data => data.vavg_1_mps).filter(v => v !== undefined);
+            const vavg2 = historyData.map(data => data.vavg_2_mps).filter(v => v !== undefined);
+            const vavg3 = historyData.map(data => data.vavg_3_mps).filter(v => v !== undefined);
+
+            if (timestamps.length === 0) return;
+
+            const graphData = [
+                { x: timestamps, y: vavg1, type: 'scatter', mode: 'lines+markers', name: 'Vavg 1 (m/s)', line: { color: 'red' } },
+                { x: timestamps, y: vavg2, type: 'scatter', mode: 'lines+markers', name: 'Vavg 2 (m/s)', line: { color: 'green' } },
+                { x: timestamps, y: vavg3, type: 'scatter', mode: 'lines+markers', name: 'Vavg 3 (m/s)', line: { color: 'blue' } }
+            ];
+
+            const layout = {
+                title: "Average Wind Over Time",
+                xaxis: { title: "Time" },
+                yaxis: { title: "Velocity (m/s)" },
+                margin: { t: 40, b: 40, l: 40, r: 20 }
+            };
+
+            Plotly.react('average-wind-graph', graphData, layout);
+        };
+
+        const updateStdDevWindGraph = (historyData) => {
+            const timestamps = historyData.map(data => data.sent_time).filter(t => t);
+            const vstd1 = historyData.map(data => data.vstd_1_mps).filter(v => v !== undefined);
+            const vstd2 = historyData.map(data => data.vstd_2_mps).filter(v => v !== undefined);
+            const vstd3 = historyData.map(data => data.vstd_3_mps).filter(v => v !== undefined);
+
+            if (timestamps.length === 0) return;
+
+            const graphData = [
+                { x: timestamps, y: vstd1, type: 'scatter', mode: 'lines+markers', name: 'Vstd 1 (m/s)', line: { color: 'red' } },
+                { x: timestamps, y: vstd2, type: 'scatter', mode: 'lines+markers', name: 'Vstd 2 (m/s)', line: { color: 'green' } },
+                { x: timestamps, y: vstd3, type: 'scatter', mode: 'lines+markers', name: 'Vstd 3 (m/s)', line: { color: 'blue' } }
+            ];
+
+            const layout = {
+                title: "Std Dev of Wind Over Time",
+                xaxis: { title: "Time" },
+                yaxis: { title: "Std Dev (m/s)" },
+                margin: { t: 40, b: 40, l: 40, r: 20 }
+            };
+
+            Plotly.react('stddev-wind-graph', graphData, layout);
+        };
+
         const fetchAndUpdateAll = async () => {
             try {
                 const response = await fetch(`${BASE_URL}/history`);
@@ -158,9 +283,13 @@
                 const historyData = await response.json();
                 if (historyData.length > 0) {
                     updateMap(historyData);
-                    updateGraph(historyData);
+                    updateAltitudeGraph(historyData);
                     updateTemperatureGraph(historyData);
-                    updateModelAndVectors(historyData);  // Updated function name
+                    updateOrientationGraph(historyData);
+                    updatePressureGraph(historyData);
+                    updateAverageWindGraph(historyData);
+                    updateStdDevWindGraph(historyData);
+                    updateModelAndVectors(historyData);
                 }
             } catch (error) {
                 console.error("Error fetching history:", error);
@@ -224,7 +353,7 @@
             const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), scene);
 
             let satellite;
-            BABYLON.SceneLoader.Append("./static/models/", "AnemometerAssembly.gltf", scene, () => {
+            BABYLON.SceneLoader.Append("./static/models/", "SATELLITE.gltf", scene, () => {
                 satellite = scene.meshes[0];
                 satellite.position = BABYLON.Vector3.Zero();
                 console.log("Satellite loaded and centered");
@@ -243,12 +372,11 @@
             };
 
             const windArrows = {
-                x: createArrow("windX", new BABYLON.Color3(1, 0, 0)),  // Red for vavg_1_mps (X)
-                y: createArrow("windY", new BABYLON.Color3(0, 1, 0)),  // Green for vavg_2_mps (Y)
-                z: createArrow("windZ", new BABYLON.Color3(0, 0, 1))   // Blue for vavg_3_mps (Z)
+                x: createArrow("windX", new BABYLON.Color3(1, 0, 0)),
+                y: createArrow("windY", new BABYLON.Color3(0, 1, 0)),
+                z: createArrow("windZ", new BABYLON.Color3(0, 0, 1))
             };
 
-            // Make arrows children of the satellite so they rotate with it
             if (satellite) {
                 windArrows.x.parent = satellite;
                 windArrows.y.parent = satellite;
@@ -264,29 +392,24 @@
             const latest = historyData[historyData.length - 1];
             if (!latest || !satellite) return;
 
-            const pitch = BABYLON.Tools.ToRadians(latest.pitch_deg || 0);  // Pitch (X-axis rotation)
-            const roll = BABYLON.Tools.ToRadians(latest.roll_deg || 0);    // Roll (Z-axis rotation)
-            const yaw = BABYLON.Tools.ToRadians(latest.yaw_deg || 0);      // Yaw (Y-axis rotation)
+            const pitch = BABYLON.Tools.ToRadians(latest.pitch_deg || 0);
+            const roll = BABYLON.Tools.ToRadians(latest.roll_deg || 0);
+            const yaw = BABYLON.Tools.ToRadians(latest.yaw_deg || 0);
 
-            // Apply pitch, roll, and yaw to the satellite
             satellite.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(yaw, pitch, roll);
 
-            // Update wind vectors (relative to model)
-            const vX = latest.vavg_1_mps || 0;  // Wind velocity X
-            const vY = latest.vavg_2_mps || 0;  // Wind velocity Y
-            const vZ = latest.vavg_3_mps || 0;  // Wind velocity Z
+            const vX = latest.vavg_1_mps || 0;
+            const vY = latest.vavg_2_mps ||0;
+            const vZ = latest.vavg_3_mps || 0;
 
-            // X arrow (along model’s local X-axis)
             windArrows.x.scaling.y = Math.abs(vX) * 0.5;
             windArrows.x.rotation = new BABYLON.Vector3(0, 0, vX >= 0 ? 0 : Math.PI);
             windArrows.x.position = new BABYLON.Vector3(vX >= 0 ? 2 : -2, 0, 0);
 
-            // Y arrow (along model’s local Y-axis)
             windArrows.y.scaling.y = Math.abs(vY) * 0.5;
             windArrows.y.rotation = new BABYLON.Vector3(vY >= 0 ? -Math.PI / 2 : Math.PI / 2, 0, 0);
             windArrows.y.position = new BABYLON.Vector3(0, vY >= 0 ? 2 : -2, 0);
 
-            // Z arrow (along model’s local Z-axis)
             windArrows.z.scaling.y = Math.abs(vZ) * 0.5;
             windArrows.z.rotation = new BABYLON.Vector3(0, vZ >= 0 ? Math.PI / 2 : -Math.PI / 2, 0);
             windArrows.z.position = new BABYLON.Vector3(0, 0, vZ >= 0 ? 2 : -2);
