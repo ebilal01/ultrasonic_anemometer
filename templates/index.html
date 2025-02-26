@@ -74,8 +74,8 @@
     </header>
 
     <div id="title-section">
-    <button id="about-toggle-btn">About the Site</button>
-</div>
+        <button id="about-toggle-btn">About the Site</button>
+    </div>
 
     <div id="map" style="height: 500px; width: 100%;"></div>
 
@@ -381,7 +381,7 @@
                     updateAverageWindGraph(historyData);
                     updateStdDevWindGraph(historyData);
                     updatePeakWindGraph(historyData);
-                    updateWindVectors(historyData);
+                    // updateWindVectors(historyData); // Commented out as part of 3D animation removal
                 }
             } catch (error) {
                 console.error("Error fetching history:", error);
@@ -393,20 +393,20 @@
         };
 
         window.onload = async () => {
-    await fetchHistory();
-    setInterval(fetchAndUpdateAll, 1000);
+            await fetchHistory();
+            setInterval(fetchAndUpdateAll, 1000);
 
-    // Toggle About section visibility only
-    const aboutButton = document.getElementById('about-toggle-btn');
-    const aboutSection = document.getElementById('about-section');
-    aboutButton.addEventListener('click', () => {
-        if (aboutSection.style.display === 'none') {
-            aboutSection.style.display = 'block';
-        } else {
-            aboutSection.style.display = 'none';
-        }
-    });
-};
+            // Toggle About section visibility only
+            const aboutButton = document.getElementById('about-toggle-btn');
+            const aboutSection = document.getElementById('about-section');
+            aboutButton.addEventListener('click', () => {
+                if (aboutSection.style.display === 'none') {
+                    aboutSection.style.display = 'block';
+                } else {
+                    aboutSection.style.display = 'none';
+                }
+            });
+        };
 
         document.addEventListener("DOMContentLoaded", function () {
             fetchMessageHistory();
@@ -446,6 +446,8 @@
             }
         }
 
+        /* Commented out 3D model and axis animation code below */
+        /*
         const canvas = document.getElementById("renderCanvas");
         const engine = new BABYLON.Engine(canvas, true);
 
@@ -517,6 +519,7 @@
         window.addEventListener("resize", () => {
             engine.resize();
         });
+        */
     </script>
 </body>
 </html>
