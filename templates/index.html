@@ -102,7 +102,7 @@
         <div id="peak-wind-graph" class="graph"></div>
     </div>
 
-    <canvas id="renderCanvas"></canvas>
+    <!-- <canvas id="renderCanvas"></canvas> --> <!-- Commented out as requested -->
 
     <div style="text-align: center;">
         <div style="margin-top: 10px; font-size: 16px;">
@@ -396,15 +396,11 @@
             await fetchHistory();
             setInterval(fetchAndUpdateAll, 1000);
 
-            // Toggle About section visibility only
+            // Scroll to About section when button is clicked
             const aboutButton = document.getElementById('about-toggle-btn');
             const aboutSection = document.getElementById('about-section');
             aboutButton.addEventListener('click', () => {
-                if (aboutSection.style.display === 'none') {
-                    aboutSection.style.display = 'block';
-                } else {
-                    aboutSection.style.display = 'none';
-                }
+                aboutSection.scrollIntoView({ behavior: 'smooth' });
             });
         };
 
