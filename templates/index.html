@@ -163,6 +163,12 @@
             }
         };
 
+        const config = {
+            displayModeBar: true, // Always show the modebar
+            modeBarButtonsToRemove: ['toImage', 'sendDataToCloud'], // Remove unnecessary buttons
+            displaylogo: false // Hide Plotly logo
+        };
+
         const updateAltitudeGraph = (historyData) => {
             const timestamps = historyData.map(data => data.sent_time).filter(t => t);
             const altitudes = historyData.map(data => data.altitude).filter(a => a !== undefined);
@@ -179,13 +185,14 @@
             }];
 
             const layout = {
-                title: "Altitude",
+                title: { text: "Altitude", standoff: 20 },
                 xaxis: { title: "Time" },
                 yaxis: { title: "Altitude (m)" },
-                margin: { t: 40, b: 40, l: 40, r: 20 }
+                margin: { t: 60, b: 40, l: 40, r: 20 },
+                height: 250
             };
 
-            Plotly.react('altitude-graph', graphData, layout);
+            Plotly.react('altitude-graph', graphData, layout, config);
         };
 
         const updateTemperatureGraph = (historyData) => {
@@ -203,14 +210,14 @@
             ];
 
             const layout = {
-                title: "Temperature",
+                title: { text: "Temperature", standoff: 20 },
                 xaxis: { title: "Time" },
                 yaxis: { title: "Temperature (°C)" },
-                margin: { t: 40, b: 40, l: 40, r: 20 }
+                margin: { t: 60, b: 40, l: 40, r: 20 },
+                height: 250
             };
 
-            Plotly.react('temperature-graph', tempGraphData, layout);
-
+            Plotly.react('temperature-graph', tempGraphData, layout, config);
             const latest = historyData[historyData.length - 1];
             if (latest) {
                 if (latest.temperature_cj_c !== undefined) {
@@ -237,13 +244,14 @@
             ];
 
             const layout = {
-                title: "Orientation",
+                title: { text: "Orientation", standoff: 20 },
                 xaxis: { title: "Time" },
                 yaxis: { title: "Degrees" },
-                margin: { t: 40, b: 40, l: 40, r: 20 }
+                margin: { t: 60, b: 40, l: 40, r: 20 },
+                height: 250
             };
 
-            Plotly.react('orientation-graph', graphData, layout);
+            Plotly.react('orientation-graph', graphData, layout, config);
         };
 
         const updatePressureGraph = (historyData) => {
@@ -262,13 +270,14 @@
             }];
 
             const layout = {
-                title: "Pressure",
+                title: { text: "Pressure", standoff: 20 },
                 xaxis: { title: "Time" },
                 yaxis: { title: "Pressure (mbar)" },
-                margin: { t: 40, b: 40, l: 40, r: 20 }
+                margin: { t: 60, b: 40, l: 40, r: 20 },
+                height: 250
             };
 
-            Plotly.react('pressure-graph', graphData, layout);
+            Plotly.react('pressure-graph', graphData, layout, config);
         };
 
         const updateAverageWindGraph = (historyData) => {
@@ -286,13 +295,14 @@
             ];
 
             const layout = {
-                title: "Average Wind",
+                title: { text: "Average Wind", standoff: 20 },
                 xaxis: { title: "Time" },
                 yaxis: { title: "Velocity (m/s)" },
-                margin: { t: 40, b: 40, l: 40, r: 20 }
+                margin: { t: 60, b: 40, l: 40, r: 20 },
+                height: 250
             };
 
-            Plotly.react('average-wind-graph', graphData, layout);
+            Plotly.react('average-wind-graph', graphData, layout, config);
         };
 
         const updateStdDevWindGraph = (historyData) => {
@@ -310,13 +320,14 @@
             ];
 
             const layout = {
-                title: "Std Dev of Wind",
+                title: { text: "Std Dev of Wind", standoff: 20 },
                 xaxis: { title: "Time" },
                 yaxis: { title: "Std Dev (m/s)" },
-                margin: { t: 40, b: 40, l: 40, r: 20 }
+                margin: { t: 60, b: 40, l: 40, r: 20 },
+                height: 250
             };
 
-            Plotly.react('stddev-wind-graph', graphData, layout);
+            Plotly.react('stddev-wind-graph', graphData, layout, config);
         };
 
         const updatePeakWindGraph = (historyData) => {
@@ -334,13 +345,14 @@
             ];
 
             const layout = {
-                title: "Peak Wind",
+                title: { text: "Peak Wind", standoff: 20 },
                 xaxis: { title: "Time" },
                 yaxis: { title: "Velocity (m/s)" },
-                margin: { t: 40, b: 40, l: 40, r: 20 }
+                margin: { t: 60, b: 40, l: 40, r: 20 },
+                height: 250
             };
 
-            Plotly.react('peak-wind-graph', graphData, layout);
+            Plotly.react('peak-wind-graph', graphData, layout, config);
         };
 
         const fetchAndUpdateAll = async () => {
