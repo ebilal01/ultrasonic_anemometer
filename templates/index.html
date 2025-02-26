@@ -176,9 +176,9 @@
         };
 
         const config = {
-            displayModeBar: true, // Always show the modebar
-            modeBarButtonsToRemove: ['toImage', 'sendDataToCloud'], // Remove unnecessary buttons
-            displaylogo: false // Hide Plotly logo
+            displayModeBar: true,
+            modeBarButtonsToRemove: ['toImage', 'sendDataToCloud'],
+            displaylogo: false
         };
 
         const updateAltitudeGraph = (historyData) => {
@@ -384,7 +384,8 @@
                     updateAverageWindGraph(historyData);
                     updateStdDevWindGraph(historyData);
                     updatePeakWindGraph(historyData);
-                    updateWindVectors(historyData); // Re-enabled for 3D animation
+                    updateWindVectors(historyData);
+                    updateCameraOrientation(historyData); // New function for camera orientation
                 }
             } catch (error) {
                 console.error("Error fetching history:", error);
@@ -399,7 +400,6 @@
             await fetchHistory();
             setInterval(fetchAndUpdateAll, 1000);
 
-            // Scroll to About section when button is clicked
             const aboutButton = document.getElementById('about-toggle-btn');
             const aboutSection = document.getElementById('about-section');
             aboutButton.addEventListener('click', () => {
@@ -445,13 +445,11 @@
             }
         }
 
-        // Reintroduced 3D model and axis animation code
         const canvas = document.getElementById("renderCanvas");
         const engine = new BABYLON.Engine(canvas, true);
 
         const createScene = () => {
             const scene = new BABYLON.Scene(engine);
-            // Adjusted initial zoom: reduced radius from 4 to 2
             const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 2, BABYLON.Vector3.Zero(), scene);
             camera.attachControl(canvas, true);
             const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), scene);
@@ -477,17 +475,16 @@
                 return arrow;
             };
 
-            // Adjusted vector positions: reduced from 1 to 0.5 units from model
             const windArrows = {
-                x: createArrow("windX", new BABYLON.Color3(1, 0, 0), new BABYLON.Vector3(0.5, 0, 0)),
-                y: createArrow("windY", new BABYLON.Color3(0, 1, 0), new BABYLON.Vector3(0, 0.5, 0)),
-                z: createArrow("windZ", new BABYLON.Color3(0, 0, 1), new BABYLON.Vector3(0, 0, 0.5))
+                x: createArrow("windX", new BABYLON.Color3(1, 0, 0), new BABYLON.Vector3(0.5, 0, 0)), // X-axis (red)
+                y: createArrow("windY", new BABYLON.Color3(0, 1, 0), new BABYLON.Vector3(0, 0.5, 0)), // Y-axis (green)
+                z: createArrow("windZ", new BABYLON.Color3(0, 0, 1), new BABYLON.Vector3(0, 0, 0.5))  // Z-axis (blue)
             };
 
-            return { scene, windArrows };
+            return { scene, windArrows, camera };
         };
 
-        const { scene, windArrows } = createScene();
+        const { scene, windArrows, camera } = createScene();
 
         const updateWindVectors = (historyData) => {
             const latest = historyData[historyData.length - 1];
@@ -497,7 +494,6 @@
             const vY = latest.vavg_2_mps || 0;
             const vZ = latest.vavg_3_mps || 0;
 
-            // Adjusted vector proximity: reduced initial position from 1 to 0.5
             windArrows.x.scaling.y = Math.abs(vX) * 0.5;
             windArrows.x.rotation = new BABYLON.Vector3(0, 0, vX >= 0 ? 0 : Math.PI);
             windArrows.x.position = new BABYLON.Vector3(vX >= 0 ? 0.5 : -0.5, 0, 0);
@@ -511,6 +507,25 @@
             windArrows.z.position = new BABYLON.Vector3(0, 0, vZ >= 0 ? 0.5 : -0.5);
 
             console.log(`Wind vectors: vX=${vX}, vY=${vY}, vZ=${vZ}`);
+        };
+
+        const updateCameraOrientation = (historyData) => {
+            const latest = historyData[historyData.length - 1];
+            if (!latest) return;
+
+            const pitch = BABYLON.Tools.ToRadians(latest.pitch_deg || 0); // Convert to radians
+            const roll = BABYLON.Tools.ToRadians(latest.roll_deg || 0);
+            const yaw = BABYLON.Tools.ToRadians(latest.yaw_deg || 0);
+
+            // Apply orientation to camera (alpha = yaw, beta = pitch, radius unchanged)
+            camera.alpha = yaw;  // Yaw (rotation around Y-axis)
+            camera.beta = Math.PI / 2 + pitch;  // Pitch (rotation around X-axis, adjusted from initial beta)
+            // Roll is trickier with ArcRotateCamera; we'll apply it to the model's rotation instead
+            if (scene.meshes[0]) {
+                scene.meshes[0].rotation.z = roll; // Roll (rotation around Z-axis)
+            }
+
+            console.log(`Orientation: pitch=${latest.pitch_deg}, roll=${latest.roll_deg}, yaw=${latest.yaw_deg}`);
         };
 
         engine.runRenderLoop(() => {
