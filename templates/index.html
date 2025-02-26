@@ -29,22 +29,24 @@
             display: block;
             touch-action: none;
         }
-       .action-button {
-        background-color: #007BFF;
-        color: white;
-        padding: 8px 15px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        text-decoration: none; /* For the link */
-        display: inline-block; /* Consistent sizing */
-        width: 200px; /* Fixed width for uniformity */
-        text-align: center; /* Centers text */
-        /* No font-family or font-size, inherits from button rule (Lobster Two) */
-    }
-    .action-button:hover {
-        background-color: #0056b3;
-    }
+        .action-button {
+            background-color: #007BFF;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none; /* For the link */
+            display: inline-block; /* Consistent sizing */
+            width: 200px; /* Fixed width for uniformity */
+            text-align: center; /* Centers text */
+            font-family: "Lobster Two", sans-serif; /* Matches external button rule */
+            font-size: 20px; /* Matches external button rule */
+            font-weight: 400; /* Matches external button rule */
+        }
+        .action-button:hover {
+            background-color: #0056b3;
+        }
         #about-section {
             margin-top: 20px;
         }
@@ -79,13 +81,9 @@
         </nav>
     </header>
     <div class="button-container">
-    <div id="title-section">
         <button id="about-toggle-btn" class="action-button">Project Summary</button>
-    </div>
-    <div id="download-section">
         <a href="/download-history" class="action-button" download>Download History as CSV</a>
     </div>
-</div>
 
     <div id="map" style="height: 500px; width: 100%;"></div>
 
