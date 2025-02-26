@@ -29,11 +29,8 @@
             display: block;
             touch-action: none;
         }
-        #title-section {
-            text-align: center;
-            margin: 20px 0;
-        }
-        #about-toggle-btn {
+        /* Single class for both buttons */
+        .action-button {
             background-color: #007BFF;
             color: white;
             padding: 8px 15px;
@@ -41,8 +38,12 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
+            text-decoration: none; /* For the link */
+            display: inline-block; /* Consistent sizing */
+            width: 200px; /* Fixed width for uniformity */
+            text-align: center; /* Centers text */
         }
-        #about-toggle-btn:hover {
+        .action-button:hover {
             background-color: #0056b3;
         }
         #about-section {
@@ -60,18 +61,9 @@
         }
         .button-container {
             display: flex;
-        }
-        .btn {
-            background-color: #007BFF;
-            color: white;
-            padding: 8px 15px; /* Matches #about-toggle-btn */
-            border-radius: 5px;
-            font-size: 16px; /* Matches #about-toggle-btn */
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn:hover {
-            background-color: #0056b3;
+            justify-content: center; /* Center buttons horizontally */
+            gap: 20px; /* Space between buttons */
+            margin: 20px 0; /* Consistent vertical spacing */
         }
     </style>
 </head>
@@ -88,12 +80,8 @@
         </nav>
     </header>
     <div class="button-container">
-        <div id="title-section">
-            <button id="about-toggle-btn">Project Summary</button>
-        </div>
-        <div id="download-section" style="margin-top: 20px;">
-            <a href="/download-history" class="btn" download>Download History as CSV</a>
-        </div>
+        <button id="about-toggle-btn" class="action-button">Project Summary</button>
+        <a href="/download-history" class="action-button" download>Download History as CSV</a>
     </div>
 
     <div id="map" style="height: 500px; width: 100%;"></div>
