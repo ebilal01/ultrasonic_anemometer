@@ -21,6 +21,7 @@
             width: 45%;
             height: 250px;
             margin: 0 10px;
+            position: relative; /* For positioning the modebar */
         }
         #renderCanvas {
             width: 100%;
@@ -47,6 +48,12 @@
         #about-section {
             display: none; /* Hidden by default */
             margin-top: 20px;
+        }
+        /* Move Plotly modebar to the bottom */
+        .modebar {
+            top: auto !important;
+            bottom: 0 !important;
+            padding-bottom: 5px; /* Add some spacing from the bottom edge */
         }
     </style>
 </head>
