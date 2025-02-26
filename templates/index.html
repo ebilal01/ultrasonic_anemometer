@@ -33,7 +33,7 @@
             text-align: center;
             margin: 20px 0;
         }
-        #about-toggle-btn, .btn {
+        #about-toggle-btn {
             background-color: #007BFF;
             color: white;
             padding: 8px 15px;
@@ -41,12 +41,8 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
-            text-decoration: none; /* For the link */
-            display: inline-block; /* Ensures consistent sizing */
-            width: 200px; /* Fixed width for uniformity */
-            text-align: center; /* Centers text in buttons */
         }
-        #about-toggle-btn:hover, .btn:hover {
+        #about-toggle-btn:hover {
             background-color: #0056b3;
         }
         #about-section {
@@ -64,8 +60,18 @@
         }
         .button-container {
             display: flex;
-            justify-content: center; /* Center buttons horizontally */
-            gap: 20px; /* Space between buttons */
+        }
+        .btn {
+            background-color: #007BFF;
+            color: white;
+            padding: 8px 15px; /* Matches #about-toggle-btn */
+            border-radius: 5px;
+            font-size: 16px; /* Matches #about-toggle-btn */
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
@@ -85,7 +91,7 @@
         <div id="title-section">
             <button id="about-toggle-btn">Project Summary</button>
         </div>
-        <div id="download-section">
+        <div id="download-section" style="margin-top: 20px;">
             <a href="/download-history" class="btn" download>Download History as CSV</a>
         </div>
     </div>
