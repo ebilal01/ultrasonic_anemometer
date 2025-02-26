@@ -32,7 +32,7 @@
             text-align: center;
             margin: 20px 0;
         }
-        #more-info-btn {
+        #about-toggle-btn {
             background-color: #007BFF;
             color: white;
             padding: 8px 15px;
@@ -41,8 +41,12 @@
             cursor: pointer;
             font-size: 16px;
         }
-        #more-info-btn:hover {
+        #about-toggle-btn:hover {
             background-color: #0056b3;
+        }
+        #about-section {
+            display: none; /* Hidden by default */
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -61,7 +65,7 @@
 
     <div id="title-section">
         <h2>Tufts High Altitude Sonic Anemometer Mission</h2>
-        <button id="more-info-btn" onclick="document.getElementById('about-section').scrollIntoView({behavior: 'smooth'})">More Information</button>
+        <button id="about-toggle-btn">Show About Information</button>
     </div>
 
     <div id="map" style="height: 500px; width: 100%;"></div>
@@ -370,6 +374,19 @@
         window.onload = async () => {
             await fetchHistory();
             setInterval(fetchAndUpdateAll, 1000);
+
+            // Toggle About section visibility
+            const aboutButton = document.getElementById('about-toggle-btn');
+            const aboutSection = document.getElementById('about-section');
+            aboutButton.addEventListener('click', () => {
+                if (aboutSection.style.display === 'none' || aboutSection.style.display === '') {
+                    aboutSection.style.display = 'block';
+                    aboutButton.textContent = 'Hide About Information';
+                } else {
+                    aboutSection.style.display = 'none';
+                    aboutButton.textContent = 'Show About Information';
+                }
+            });
         };
 
         document.addEventListener("DOMContentLoaded", function () {
