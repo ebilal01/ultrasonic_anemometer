@@ -33,7 +33,7 @@
             text-align: center;
             margin: 20px 0;
         }
-        #about-toggle-btn {
+        #about-toggle-btn, .btn {
             background-color: #007BFF;
             color: white;
             padding: 8px 15px;
@@ -41,8 +41,12 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
+            text-decoration: none; /* For the link */
+            display: inline-block; /* Ensures consistent sizing */
+            width: 200px; /* Fixed width for uniformity */
+            text-align: center; /* Centers text in buttons */
         }
-        #about-toggle-btn:hover {
+        #about-toggle-btn:hover, .btn:hover {
             background-color: #0056b3;
         }
         #about-section {
@@ -59,8 +63,10 @@
             margin-bottom: 20px; /* Space between map and graphs */
         }
         .button-container {
-  display: flex;
-}
+            display: flex;
+            justify-content: center; /* Center buttons horizontally */
+            gap: 20px; /* Space between buttons */
+        }
     </style>
 </head>
 <body>
@@ -75,16 +81,14 @@
             </ul>
         </nav>
     </header>
-<div class = "button-container">
-    <div id="title-section">
-        <button id="about-toggle-btn">Project Summary</button>
-    </div>
-    <div id="download-section" style="margin-top: 20px;">
-            <a href="/download-history" class="btn" download style="text-decoration: none; color: white; background-color: #007BFF; padding: 10px 15px; border-radius: 5px; font-size: 16px;">
-                Download History as CSV
-            </a>
+    <div class="button-container">
+        <div id="title-section">
+            <button id="about-toggle-btn">Project Summary</button>
         </div>
-</div>
+        <div id="download-section">
+            <a href="/download-history" class="btn" download>Download History as CSV</a>
+        </div>
+    </div>
 
     <div id="map" style="height: 500px; width: 100%;"></div>
 
