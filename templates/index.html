@@ -55,6 +55,10 @@
             bottom: 0 !important;
             padding-bottom: 5px; /* Add some spacing from the bottom edge */
         }
+        /* Add padding below the map */
+        #map {
+            margin-bottom: 20px; /* Space between map and graphs */
+        }
     </style>
 </head>
 <body>
@@ -69,6 +73,8 @@
             </ul>
         </nav>
     </header>
+
+    <div id="title-section">
         <button id="about-toggle-btn">Show About Information</button>
     </div>
 
@@ -391,13 +397,14 @@
             await fetchHistory();
             setInterval(fetchAndUpdateAll, 1000);
 
-            // Toggle About section visibility
+            // Toggle About section visibility and scroll to it
             const aboutButton = document.getElementById('about-toggle-btn');
             const aboutSection = document.getElementById('about-section');
             aboutButton.addEventListener('click', () => {
                 if (aboutSection.style.display === 'none' || aboutSection.style.display === '') {
                     aboutSection.style.display = 'block';
                     aboutButton.textContent = 'Hide About Information';
+                    aboutSection.scrollIntoView({ behavior: 'smooth' });
                 } else {
                     aboutSection.style.display = 'none';
                     aboutButton.textContent = 'Show About Information';
