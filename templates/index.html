@@ -40,6 +40,7 @@
             display: inline-block; /* Consistent sizing */
             width: 200px; /* Fixed width for uniformity */
             text-align: center; /* Centers text */
+            font-family: "Lobster Two", sans-serif; /* Matches external button rule */
             font-size: 20px; /* Matches external button rule */
             font-weight: 400; /* Matches external button rule */
         }
@@ -109,7 +110,7 @@
         <div id="peak-wind-graph" class="graph"></div>
     </div>
 
-    <!-- <canvas id="renderCanvas"></canvas> --> <!-- Commented out as requested -->
+    <canvas id="renderCanvas"></canvas>
 
     <div style="text-align: center;">
         <div style="margin-top: 10px; font-size: 16px;">
@@ -383,7 +384,7 @@
                     updateAverageWindGraph(historyData);
                     updateStdDevWindGraph(historyData);
                     updatePeakWindGraph(historyData);
-                    // updateWindVectors(historyData); // Commented out as part of 3D animation removal
+                    updateWindVectors(historyData); // Re-enabled for 3D animation
                 }
             } catch (error) {
                 console.error("Error fetching history:", error);
@@ -444,14 +445,14 @@
             }
         }
 
-        /* Commented out 3D model and axis animation code below */
-        /*
+        // Reintroduced 3D model and axis animation code
         const canvas = document.getElementById("renderCanvas");
         const engine = new BABYLON.Engine(canvas, true);
 
         const createScene = () => {
             const scene = new BABYLON.Scene(engine);
-            const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 4, BABYLON.Vector3.Zero(), scene);
+            // Adjusted initial zoom: reduced radius from 4 to 2
+            const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 2, BABYLON.Vector3.Zero(), scene);
             camera.attachControl(canvas, true);
             const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), scene);
 
@@ -476,10 +477,11 @@
                 return arrow;
             };
 
+            // Adjusted vector positions: reduced from 1 to 0.5 units from model
             const windArrows = {
-                x: createArrow("windX", new BABYLON.Color3(1, 0, 0), new BABYLON.Vector3(1, 0, 0)),
-                y: createArrow("windY", new BABYLON.Color3(0, 1, 0), new BABYLON.Vector3(0, 1, 0)),
-                z: createArrow("windZ", new BABYLON.Color3(0, 0, 1), new BABYLON.Vector3(0, 0, 1))
+                x: createArrow("windX", new BABYLON.Color3(1, 0, 0), new BABYLON.Vector3(0.5, 0, 0)),
+                y: createArrow("windY", new BABYLON.Color3(0, 1, 0), new BABYLON.Vector3(0, 0.5, 0)),
+                z: createArrow("windZ", new BABYLON.Color3(0, 0, 1), new BABYLON.Vector3(0, 0, 0.5))
             };
 
             return { scene, windArrows };
@@ -495,17 +497,18 @@
             const vY = latest.vavg_2_mps || 0;
             const vZ = latest.vavg_3_mps || 0;
 
+            // Adjusted vector proximity: reduced initial position from 1 to 0.5
             windArrows.x.scaling.y = Math.abs(vX) * 0.5;
             windArrows.x.rotation = new BABYLON.Vector3(0, 0, vX >= 0 ? 0 : Math.PI);
-            windArrows.x.position = new BABYLON.Vector3(vX >= 0 ? 1 : -1, 0, 0);
+            windArrows.x.position = new BABYLON.Vector3(vX >= 0 ? 0.5 : -0.5, 0, 0);
 
             windArrows.y.scaling.y = Math.abs(vY) * 0.5;
             windArrows.y.rotation = new BABYLON.Vector3(vY >= 0 ? -Math.PI / 2 : Math.PI / 2, 0, 0);
-            windArrows.y.position = new BABYLON.Vector3(0, vY >= 0 ? 1 : -1, 0);
+            windArrows.y.position = new BABYLON.Vector3(0, vY >= 0 ? 0.5 : -0.5, 0);
 
             windArrows.z.scaling.y = Math.abs(vZ) * 0.5;
             windArrows.z.rotation = new BABYLON.Vector3(0, vZ >= 0 ? Math.PI / 2 : -Math.PI / 2, 0);
-            windArrows.z.position = new BABYLON.Vector3(0, 0, vZ >= 0 ? 1 : -1);
+            windArrows.z.position = new BABYLON.Vector3(0, 0, vZ >= 0 ? 0.5 : -0.5);
 
             console.log(`Wind vectors: vX=${vX}, vY=${vY}, vZ=${vZ}`);
         };
@@ -517,7 +520,6 @@
         window.addEventListener("resize", () => {
             engine.resize();
         });
-        */
     </script>
 </body>
 </html>
