@@ -22,12 +22,27 @@
             height: 250px;
             margin: 0 10px;
         }
-        /* Match previous version's canvas size */
         #renderCanvas {
             width: 100%;
             height: 300px;
             display: block;
             touch-action: none;
+        }
+        #title-section {
+            text-align: center;
+            margin: 20px 0;
+        }
+        #more-info-btn {
+            background-color: #007BFF;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #more-info-btn:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
@@ -35,7 +50,7 @@
     <header>
         <div class="header-content">
             <h3>Flight Data Visualization</h3>
-            <h6>Professor Robert White Ph.D.</h6>
+            <h6>Elias Bilal & Prof. Robert White, Tufts Mechanical Engineering</h6>
         </div>
         <nav>
             <ul class="nav_links">
@@ -43,6 +58,12 @@
             </ul>
         </nav>
     </header>
+
+    <div id="title-section">
+        <h2>Tufts High Altitude Sonic Anemometer Mission</h2>
+        <button id="more-info-btn" onclick="document.getElementById('about-section').scrollIntoView({behavior: 'smooth'})">More Information</button>
+    </div>
+
     <div id="map" style="height: 500px; width: 100%;"></div>
 
     <!-- Row 1: Altitude and Temperature -->
@@ -63,6 +84,11 @@
         <div id="stddev-wind-graph" class="graph"></div>
     </div>
 
+    <!-- Row 4: Peak Wind -->
+    <div class="graph-container">
+        <div id="peak-wind-graph" class="graph"></div>
+    </div>
+
     <canvas id="renderCanvas"></canvas>
 
     <div style="text-align: center;">
@@ -78,11 +104,14 @@
         <div style="margin-top: 10px; font-size: 16px;">
             Pressure: <span id="pressure">0</span> mbar
         </div>
-        <div>
-            <h6 style = "text-align: center">About the Site</h6>   
-  <p style = "text-align: center"> The goals of this site are to monitor flight data without needing to wait for SD card retreival and to create a platform to share the recorded high altitude wind anemometry data with the global scientific community. This Pyscript Webhook site recieves hex encoded messages sent from a mission balloon mounted Arduino based Artemis Global Tracker over the Iridium Network through RockBlock. The backend python file then parses that message and updates the map, graphs and model to display the data live on the front end html file. This web service is hosted on Render and message data is saved onto a persistent disk. </p>
-
-    </div>
+        <div id="about-section">
+            <h6 style="text-align: center">About the Site</h6>
+            <p style="text-align: center">
+                The Tufts high altitude sonic anemometer [1,2] is flying on a long duration high altitude balloon mission out of Wanaka, New Zealand, courtesy of NASA and the Columbia Scientific Ballooning Facility. As far as we are aware, this is the first ever long duration flight of a stratospheric sonic anemometer. The instrument will monitor vector (3D) relative winds at the gondola with an update rate of approximately 3 x 3D measurements per second. The system also includes pressure and temperature sensors, a 9DOF IMU for geospatial orientation, and a GPS receiver. All the data is logged internally and will be available with the high update rate (3 Hz) recording for the entire mission when the gondola is recovered. However, there is some risk that the data could be lost if recovery is not possible, and the data will not be available for some time during transit. In addition to the logged data, Iridium messages are sent over the Iridium network once every 20 minutes. These messages contain mean wind, the standard deviation of wind, and the peak wind in the last 20 minute interval (all as 3D vectors), in addition to pressure, temperature, altitude, location, and orientation information. The goals of this site are to monitor flight data without needing to wait for SD card retrieval and to create a platform to share the recorded high altitude wind anemometry data with the global scientific community. This Pyscript Webhook site receives hex encoded messages sent from a mission balloon mounted Artemis Global Tracker over the Iridium Network through RockBlock. The backend python file then parses that message and updates the map, graphs and model to display the data live on the front end html file. This web service is hosted on Render and message data is saved onto a persistent disk. The full system (sensor head, electronics, signal processing, communications, and web services) were built by students in Prof. Robert White’s group at Tufts University (<a href="https://sites.tufts.edu/senselab/">https://sites.tufts.edu/senselab/</a>). Students involved include Elias Bilal (web system programming, mechanical fabrication), Rishabh Chaudhary (transducers, acoustics, and signal processing), Tim Cheng (system electronics and signal processing), Julia Huckaby (mechanical design), and Zarina Kosherbayeva (mechanical design and fabrication).<br>
+                [1] Cheng, Tim J., et al. "Test Flight of a Stratospheric Sonic Anemometer Prototype." <i>Journal of Atmospheric and Oceanic Technology</i> 41.12 (2024): 1139-1149. <a href="https://journals.ametsoc.org/view/journals/atot/41/12/JTECH-D-24-0010.1.xml">https://journals.ametsoc.org/view/journals/atot/41/12/JTECH-D-24-0010.1.xml</a><br>
+                [2] White, Robert D., et al. "Flow Testing of a Digital Sonic Anemometer for Martian and Stratospheric Environments." <i>AIAA AVIATION FORUM AND ASCEND 2024</i>. <a href="https://arc.aiaa.org/doi/abs/10.2514/6.2024-3933">https://arc.aiaa.org/doi/abs/10.2514/6.2024-3933</a>
+            </p>
+        </div>
         <div>
             <h2>Latest Message:</h2>
             <p id="latest-message">No messages yet.</p>
@@ -107,6 +136,9 @@
 
         const flightPath = L.polyline([], { color: 'red' }).addTo(map);
         const marker = L.marker([0, 0]).addTo(map);
+        let hasUserInteracted = false;
+
+        map.on('zoomstart', () => { hasUserInteracted = true; });
 
         const updateMap = (historyData) => {
             flightPath.setLatLngs([]);
@@ -121,7 +153,7 @@
                 marker.setLatLng([latest.latitude, latest.longitude]);
                 document.getElementById('lat').textContent = latest.latitude.toFixed(6);
                 document.getElementById('lon').textContent = latest.longitude.toFixed(6);
-                if (flightPath.getLatLngs().length > 1) {
+                if (!hasUserInteracted && flightPath.getLatLngs().length > 1) {
                     map.fitBounds(flightPath.getBounds());
                 }
             }
@@ -154,18 +186,17 @@
 
         const updateTemperatureGraph = (historyData) => {
             const timestamps = historyData.map(data => data.sent_time).filter(t => t);
-            const temperatures = historyData.map(data => data.temperature_cj_c).filter(t => t !== undefined);
+            const ttip = historyData.map(data => data.temperature_tctip_c).filter(t => t !== undefined);
+            const tcj = historyData.map(data => data.temperature_cj_c).filter(t => t !== undefined);
+            const tpht = historyData.map(data => data.temperature_pht_c).filter(t => t !== undefined);
 
-            if (timestamps.length === 0 || temperatures.length === 0) return;
+            if (timestamps.length === 0) return;
 
-            const tempGraphData = [{
-                x: timestamps,
-                y: temperatures,
-                type: 'scatter',
-                mode: 'lines+markers',
-                line: { color: 'red' },
-                name: "Temperature (°C)"
-            }];
+            const tempGraphData = [
+                { x: timestamps, y: ttip, type: 'scatter', mode: 'lines+markers', name: 'Ttip (°C)', line: { color: 'red' } },
+                { x: timestamps, y: tcj, type: 'scatter', mode: 'lines+markers', name: 'Tcj (°C)', line: { color: 'orange' } },
+                { x: timestamps, y: tpht, type: 'scatter', mode: 'lines+markers', name: 'Tpht (°C)', line: { color: 'yellow' } }
+            ];
 
             const layout = {
                 title: "Temperature",
@@ -262,23 +293,17 @@
 
         const updateStdDevWindGraph = (historyData) => {
             const timestamps = historyData.map(data => data.sent_time).filter(t => t);
-            const avgStdDev = historyData.map(data => {
-                const vstd1 = data.vstd_1_mps || 0;
-                const vstd2 = data.vstd_2_mps || 0;
-                const vstd3 = data.vstd_3_mps || 0;
-                return (vstd1 + vstd2 + vstd3) / 3;
-            }).filter(v => v !== undefined);
+            const vstd1 = historyData.map(data => data.vstd_1_mps).filter(v => v !== undefined);
+            const vstd2 = historyData.map(data => data.vstd_2_mps).filter(v => v !== undefined);
+            const vstd3 = historyData.map(data => data.vstd_3_mps).filter(v => v !== undefined);
 
-            if (timestamps.length === 0 || avgStdDev.length === 0) return;
+            if (timestamps.length === 0) return;
 
-            const graphData = [{
-                x: timestamps,
-                y: avgStdDev,
-                type: 'scatter',
-                mode: 'lines+markers',
-                line: { color: 'blue' },
-                name: "Avg Std Dev (m/s)"
-            }];
+            const graphData = [
+                { x: timestamps, y: vstd1, type: 'scatter', mode: 'lines+markers', name: 'Vstd 1 (m/s)', line: { color: 'red' } },
+                { x: timestamps, y: vstd2, type: 'scatter', mode: 'lines+markers', name: 'Vstd 2 (m/s)', line: { color: 'green' } },
+                { x: timestamps, y: vstd3, type: 'scatter', mode: 'lines+markers', name: 'Vstd 3 (m/s)', line: { color: 'blue' } }
+            ];
 
             const layout = {
                 title: "Std Dev of Wind",
@@ -288,6 +313,30 @@
             };
 
             Plotly.react('stddev-wind-graph', graphData, layout);
+        };
+
+        const updatePeakWindGraph = (historyData) => {
+            const timestamps = historyData.map(data => data.sent_time).filter(t => t);
+            const vpk1 = historyData.map(data => data.vpk_1_mps).filter(v => v !== undefined);
+            const vpk2 = historyData.map(data => data.vpk_2_mps).filter(v => v !== undefined);
+            const vpk3 = historyData.map(data => data.vpk_3_mps).filter(v => v !== undefined);
+
+            if (timestamps.length === 0) return;
+
+            const graphData = [
+                { x: timestamps, y: vpk1, type: 'scatter', mode: 'lines+markers', name: 'Vpk 1 (m/s)', line: { color: 'red' } },
+                { x: timestamps, y: vpk2, type: 'scatter', mode: 'lines+markers', name: 'Vpk 2 (m/s)', line: { color: 'green' } },
+                { x: timestamps, y: vpk3, type: 'scatter', mode: 'lines+markers', name: 'Vpk 3 (m/s)', line: { color: 'blue' } }
+            ];
+
+            const layout = {
+                title: "Peak Wind",
+                xaxis: { title: "Time" },
+                yaxis: { title: "Velocity (m/s)" },
+                margin: { t: 40, b: 40, l: 40, r: 20 }
+            };
+
+            Plotly.react('peak-wind-graph', graphData, layout);
         };
 
         const fetchAndUpdateAll = async () => {
@@ -306,7 +355,8 @@
                     updatePressureGraph(historyData);
                     updateAverageWindGraph(historyData);
                     updateStdDevWindGraph(historyData);
-                    updateWindVectors(historyData); // Changed to match old version
+                    updatePeakWindGraph(historyData);
+                    updateWindVectors(historyData);
                 }
             } catch (error) {
                 console.error("Error fetching history:", error);
@@ -365,7 +415,7 @@
 
         const createScene = () => {
             const scene = new BABYLON.Scene(engine);
-            const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 4, BABYLON.Vector3.Zero(), scene); // Zoomed in from 20 to 4
+            const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 4, BABYLON.Vector3.Zero(), scene);
             camera.attachControl(canvas, true);
             const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), scene);
 
@@ -373,15 +423,15 @@
             BABYLON.SceneLoader.Append("./static/models/", "AnemometerAssembly.gltf", scene, () => {
                 satellite = scene.meshes[0];
                 satellite.position = BABYLON.Vector3.Zero();
-                satellite.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5); // Adjust if needed
+                satellite.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
                 console.log("Anemometer loaded and centered");
             });
 
             const createArrow = (name, color, initialPosition) => {
                 const arrow = BABYLON.MeshBuilder.CreateCylinder(name, {
-                    height: 0.3, // Smaller than 1.5 for new model
+                    height: 0.3,
                     diameterTop: 0,
-                    diameterBottom: 0.03 // Smaller than 0.2
+                    diameterBottom: 0.03
                 }, scene);
                 const arrowMaterial = new BABYLON.StandardMaterial(name + "Material", scene);
                 arrowMaterial.diffuseColor = color;
@@ -391,7 +441,7 @@
             };
 
             const windArrows = {
-                x: createArrow("windX", new BABYLON.Color3(1, 0, 0), new BABYLON.Vector3(1, 0, 0)), // Offset from model
+                x: createArrow("windX", new BABYLON.Color3(1, 0, 0), new BABYLON.Vector3(1, 0, 0)),
                 y: createArrow("windY", new BABYLON.Color3(0, 1, 0), new BABYLON.Vector3(0, 1, 0)),
                 z: createArrow("windZ", new BABYLON.Color3(0, 0, 1), new BABYLON.Vector3(0, 0, 1))
             };
@@ -421,7 +471,7 @@
             windArrows.z.rotation = new BABYLON.Vector3(0, vZ >= 0 ? Math.PI / 2 : -Math.PI / 2, 0);
             windArrows.z.position = new BABYLON.Vector3(0, 0, vZ >= 0 ? 1 : -1);
 
-            console.log(`Wind vectors: vX=${vX}, vY=${vY}, vZ=${vZ}`); // Debug log
+            console.log(`Wind vectors: vX=${vX}, vY=${vY}, vZ=${vZ}`);
         };
 
         engine.runRenderLoop(() => {
