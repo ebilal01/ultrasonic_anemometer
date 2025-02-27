@@ -367,7 +367,7 @@
             Plotly.react('peak-wind-graph', graphData, layout, config);
         };
 
-        let isFirstLoad = true; // Flag for initial data load
+        let isFirstLoad = true;
 
         const fetchAndUpdateAll = async () => {
             try {
@@ -389,7 +389,7 @@
                     updateWindVectors(historyData);
                     if (isFirstLoad) {
                         updateCameraOrientation(historyData);
-                        isFirstLoad = false; // Only update camera on first load
+                        isFirstLoad = false;
                     }
                 }
             } catch (error) {
@@ -481,9 +481,9 @@
             };
 
             const windArrows = {
-                x: createArrow("windX", new BABYLON.Color3(1, 0, 0), new BABYLON.Vector3(0.5, 0, 0)), // X-axis (red)
-                y: createArrow("windY", new BABYLON.Color3(0, 1, 0), new BABYLON.Vector3(0, 0.5, 0)), // Y-axis (green)
-                z: createArrow("windZ", new BABYLON.Color3(0, 0, 1), new BABYLON.Vector3(0, 0, 0.5))  // Z-axis (blue)
+                x: createArrow("windX", new BABYLON.Color3(1, 0, 0), new BABYLON.Vector3(0.5, 0.2, 0)), // X-axis (red), lifted in Y
+                y: createArrow("windY", new BABYLON.Color3(0, 1, 0), new BABYLON.Vector3(0, 0.5, 0)),   // Y-axis (green)
+                z: createArrow("windZ", new BABYLON.Color3(0, 0, 1), new BABYLON.Vector3(0, 0, 0.5))    // Z-axis (blue)
             };
 
             return { scene, windArrows, camera };
@@ -499,17 +499,14 @@
             const vY = latest.vavg_2_mps || 0;
             const vZ = latest.vavg_3_mps || 0;
 
-            // Red arrow (X-axis): Rotates around Z-axis, moves along X
             windArrows.x.scaling.y = Math.abs(vX) * 0.5;
-            windArrows.x.rotation = new BABYLON.Vector3(0, 0, vX >= 0 ? -Math.PI / 2 : Math.PI / 2); // Fixed rotation
-            windArrows.x.position = new BABYLON.Vector3(vX >= 0 ? 0.5 : -0.5, 0, 0);
+            windArrows.x.rotation = new BABYLON.Vector3(0, 0, vX >= 0 ? -Math.PI / 2 : Math.PI / 2);
+            windArrows.x.position = new BABYLON.Vector3(vX >= 0 ? 0.5 : -0.5, 0.2, 0); // Lifted in Y
 
-            // Green arrow (Y-axis): Rotates around X-axis, moves along Y
             windArrows.y.scaling.y = Math.abs(vY) * 0.5;
             windArrows.y.rotation = new BABYLON.Vector3(vY >= 0 ? -Math.PI / 2 : Math.PI / 2, 0, 0);
             windArrows.y.position = new BABYLON.Vector3(0, vY >= 0 ? 0.5 : -0.5, 0);
 
-            // Blue arrow (Z-axis): Rotates around Y-axis, moves along Z
             windArrows.z.scaling.y = Math.abs(vZ) * 0.5;
             windArrows.z.rotation = new BABYLON.Vector3(0, vZ >= 0 ? Math.PI / 2 : -Math.PI / 2, 0);
             windArrows.z.position = new BABYLON.Vector3(0, 0, vZ >= 0 ? 0.5 : -0.5);
