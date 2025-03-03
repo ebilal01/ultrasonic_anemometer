@@ -182,7 +182,7 @@ h2 {
 
 h3 {
     color: black;
-    font-size: 35px;
+    font-size: 30px;
     font-family: "Figtree";
     line-height: 1.5;
     align-items: center; 
@@ -217,6 +217,13 @@ h7 {
     color: black;
     font-size: 25px;
     font-family: sans-serif;
+    line-height: 1.5;
+    align-items: center; 
+}
+h13 {
+    color: black;
+    font-size: 10px;
+    font-family: Figtree;
     line-height: 1.5;
     align-items: center; 
 }
