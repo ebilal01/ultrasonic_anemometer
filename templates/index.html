@@ -111,7 +111,7 @@
         <div id="peak-wind-graph" class="graph"></div>
     </div>
 
-    <canvas id="renderCanvas"></canvas>
+    <!<canvas id="renderCanvas"></canvas>>
 
     <div style="text-align: center;">
         <div style="margin-top: 10px; font-size: 16px;">
@@ -451,94 +451,94 @@
             }
         }
 
-        const canvas = document.getElementById("renderCanvas");
-        const engine = new BABYLON.Engine(canvas, true);
+        // const canvas = document.getElementById("renderCanvas");
+        // const engine = new BABYLON.Engine(canvas, true);
 
-        const createScene = () => {
-            const scene = new BABYLON.Scene(engine);
-            const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 2, BABYLON.Vector3.Zero(), scene);
-            camera.attachControl(canvas, true);
-            const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), scene);
+        // const createScene = () => {
+        //     const scene = new BABYLON.Scene(engine);
+        //     const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 2, BABYLON.Vector3.Zero(), scene);
+        //     camera.attachControl(canvas, true);
+        //     const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), scene);
 
-            let satellite;
-            BABYLON.SceneLoader.Append("./static/models/", "AnemometerAssembly.gltf", scene, () => {
-                satellite = scene.meshes[0];
-                satellite.position = BABYLON.Vector3.Zero();
-                satellite.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
-                console.log("Anemometer loaded and centered");
-            });
+        //     let satellite;
+        //     BABYLON.SceneLoader.Append("./static/models/", "AnemometerAssembly.gltf", scene, () => {
+        //         satellite = scene.meshes[0];
+        //         satellite.position = BABYLON.Vector3.Zero();
+        //         satellite.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
+        //         console.log("Anemometer loaded and centered");
+        //     });
 
-            const createArrow = (name, color, initialPosition) => {
-                const arrow = BABYLON.MeshBuilder.CreateCylinder(name, {
-                    height: 0.3,
-                    diameterTop: 0,
-                    diameterBottom: 0.03
-                }, scene);
-                const arrowMaterial = new BABYLON.StandardMaterial(name + "Material", scene);
-                arrowMaterial.diffuseColor = color;
-                arrow.material = arrowMaterial;
-                arrow.position = initialPosition;
-                return arrow;
-            };
+        //     const createArrow = (name, color, initialPosition) => {
+        //         const arrow = BABYLON.MeshBuilder.CreateCylinder(name, {
+        //             height: 0.3,
+        //             diameterTop: 0,
+        //             diameterBottom: 0.03
+        //         }, scene);
+        //         const arrowMaterial = new BABYLON.StandardMaterial(name + "Material", scene);
+        //         arrowMaterial.diffuseColor = color;
+        //         arrow.material = arrowMaterial;
+        //         arrow.position = initialPosition;
+        //         return arrow;
+        //     };
 
-            const windArrows = {
-                x: createArrow("windX", new BABYLON.Color3(1, 0, 0), new BABYLON.Vector3(0.5, 0.2, 0)), // X-axis (red), lifted in Y
-                y: createArrow("windY", new BABYLON.Color3(0, 1, 0), new BABYLON.Vector3(0, 0.5, 0)),   // Y-axis (green)
-                z: createArrow("windZ", new BABYLON.Color3(0, 0, 1), new BABYLON.Vector3(0, 0, 0.5))    // Z-axis (blue)
-            };
+        //     const windArrows = {
+        //         x: createArrow("windX", new BABYLON.Color3(1, 0, 0), new BABYLON.Vector3(0.5, 0.2, 0)), // X-axis (red), lifted in Y
+        //         y: createArrow("windY", new BABYLON.Color3(0, 1, 0), new BABYLON.Vector3(0, 0.5, 0)),   // Y-axis (green)
+        //         z: createArrow("windZ", new BABYLON.Color3(0, 0, 1), new BABYLON.Vector3(0, 0, 0.5))    // Z-axis (blue)
+        //     };
 
-            return { scene, windArrows, camera };
-        };
+        //     return { scene, windArrows, camera };
+        // };
 
-        const { scene, windArrows, camera } = createScene();
+        // const { scene, windArrows, camera } = createScene();
 
-        const updateWindVectors = (historyData) => {
-            const latest = historyData[historyData.length - 1];
-            if (!latest) return;
+        // const updateWindVectors = (historyData) => {
+        //     const latest = historyData[historyData.length - 1];
+        //     if (!latest) return;
 
-            const vX = latest.vavg_1_mps || 0;
-            const vY = latest.vavg_2_mps || 0;
-            const vZ = latest.vavg_3_mps || 0;
+        //     const vX = latest.vavg_1_mps || 0;
+        //     const vY = latest.vavg_2_mps || 0;
+        //     const vZ = latest.vavg_3_mps || 0;
 
-            windArrows.x.scaling.y = Math.abs(vX) * 0.5;
-            windArrows.x.rotation = new BABYLON.Vector3(0, 0, vX >= 0 ? -Math.PI / 2 : Math.PI / 2);
-            windArrows.x.position = new BABYLON.Vector3(vX >= 0 ? 0.5 : -0.5, 0.2, 0); // Lifted in Y
+        //     windArrows.x.scaling.y = Math.abs(vX) * 0.5;
+        //     windArrows.x.rotation = new BABYLON.Vector3(0, 0, vX >= 0 ? -Math.PI / 2 : Math.PI / 2);
+        //     windArrows.x.position = new BABYLON.Vector3(vX >= 0 ? 0.5 : -0.5, 0.2, 0); // Lifted in Y
 
-            windArrows.y.scaling.y = Math.abs(vY) * 0.5;
-            windArrows.y.rotation = new BABYLON.Vector3(vY >= 0 ? -Math.PI / 2 : Math.PI / 2, 0, 0);
-            windArrows.y.position = new BABYLON.Vector3(0, vY >= 0 ? 0.5 : -0.5, 0);
+        //     windArrows.y.scaling.y = Math.abs(vY) * 0.5;
+        //     windArrows.y.rotation = new BABYLON.Vector3(vY >= 0 ? -Math.PI / 2 : Math.PI / 2, 0, 0);
+        //     windArrows.y.position = new BABYLON.Vector3(0, vY >= 0 ? 0.5 : -0.5, 0);
 
-            windArrows.z.scaling.y = Math.abs(vZ) * 0.5;
-            windArrows.z.rotation = new BABYLON.Vector3(0, vZ >= 0 ? Math.PI / 2 : -Math.PI / 2, 0);
-            windArrows.z.position = new BABYLON.Vector3(0, 0, vZ >= 0 ? 0.5 : -0.5);
+        //     windArrows.z.scaling.y = Math.abs(vZ) * 0.5;
+        //     windArrows.z.rotation = new BABYLON.Vector3(0, vZ >= 0 ? Math.PI / 2 : -Math.PI / 2, 0);
+        //     windArrows.z.position = new BABYLON.Vector3(0, 0, vZ >= 0 ? 0.5 : -0.5);
 
-            console.log(`Wind vectors: vX=${vX}, vY=${vY}, vZ=${vZ}`);
-        };
+        //     console.log(`Wind vectors: vX=${vX}, vY=${vY}, vZ=${vZ}`);
+        // };
 
-        const updateCameraOrientation = (historyData) => {
-            const latest = historyData[historyData.length - 1];
-            if (!latest) return;
+        // const updateCameraOrientation = (historyData) => {
+        //     const latest = historyData[historyData.length - 1];
+        //     if (!latest) return;
 
-            const pitch = BABYLON.Tools.ToRadians(latest.pitch_deg || 0);
-            const roll = BABYLON.Tools.ToRadians(latest.roll_deg || 0);
-            const yaw = BABYLON.Tools.ToRadians(latest.yaw_deg || 0);
+        //     const pitch = BABYLON.Tools.ToRadians(latest.pitch_deg || 0);
+        //     const roll = BABYLON.Tools.ToRadians(latest.roll_deg || 0);
+        //     const yaw = BABYLON.Tools.ToRadians(latest.yaw_deg || 0);
 
-            camera.alpha = yaw;
-            camera.beta = Math.PI / 2 + pitch;
-            if (scene.meshes[0]) {
-                scene.meshes[0].rotation.z = roll;
-            }
+        //     camera.alpha = yaw;
+        //     camera.beta = Math.PI / 2 + pitch;
+        //     if (scene.meshes[0]) {
+        //         scene.meshes[0].rotation.z = roll;
+        //     }
 
-            console.log(`Orientation: pitch=${latest.pitch_deg}, roll=${latest.roll_deg}, yaw=${latest.yaw_deg}`);
-        };
+        //     console.log(`Orientation: pitch=${latest.pitch_deg}, roll=${latest.roll_deg}, yaw=${latest.yaw_deg}`);
+        // };
 
-        engine.runRenderLoop(() => {
-            scene.render();
-        });
+        // engine.runRenderLoop(() => {
+        //     scene.render();
+        // });
 
-        window.addEventListener("resize", () => {
-            engine.resize();
-        });
+        // window.addEventListener("resize", () => {
+        //     engine.resize();
+        // });
     </script>
 </body>
 </html>
