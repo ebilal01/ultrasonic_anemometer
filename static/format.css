@@ -319,19 +319,19 @@ button {
     flex-wrap: wrap;
 }
 
-/* Updated two-column layout */
+/* Ensure consistent image size and card layout */
 .two-column-container {
     display: flex;
-    justify-content: space-around; /* Space columns evenly */
+    justify-content: space-around;
     width: 100%;
-    max-width: 1200px; /* Optional: limit width */
-    margin: 0 auto; /* Center the container */
-    gap: 20px; /* Space between columns */
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 20px;
 }
 
 .column {
-    flex: 1; /* Each column takes equal width */
-    max-width: 45%; /* Limit width to avoid overcrowding */
+    flex: 1;
+    max-width: 45%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -341,65 +341,66 @@ button {
     position: relative;
     overflow: hidden;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    width: 100%; /* Full width of column */
-    margin-bottom: 0; /* No bottom margin for single card */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    height: 250px; /* Fixed height for uniformity */
 }
 
 .imgBx {
     width: 100%;
-    max-width: 100%; /* Ensure images fill the card */
+    height: 100%; /* Match card height */
     position: relative;
     overflow: hidden;
-    border-radius: 8px 8px 0 0; /* Rounded corners for the image container */
+    border-radius: 8px 8px 0 0;
 }
 
 .imgBx img {
     width: 100%;
-    height: auto;
+    height: 100%; /* Fill the container */
+    object-fit: cover; /* Scale image uniformly, cropping if needed */
     display: block;
 }
 
-.imgBx:hover img {
-    transform: scale(1.1);
-}
-
+/* Always visible banner covering lower 20% */
 .overlay {
     position: absolute;
-    top: 0;
+    bottom: 0; /* Anchor to bottom */
     left: 0;
     right: 0;
-    bottom: 0;
-    background: rgba(173, 216, 230, 0.9); /* Baby blue background color */
+    height: 20%; /* Cover lower 20% */
+    background: rgba(173, 216, 230, 0.9); /* Baby blue, semi-transparent */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 10px;
-    border-radius: 8px; /* Rounded corners for the overlay */
+    padding: 5px; /* Reduced padding for smaller area */
+    border-radius: 0 0 8px 8px; /* Round bottom corners only */
     color: #fff;
-    opacity: 0; /* Initially hidden */
-    transition: opacity 0.3s ease;
+    opacity: 1; /* Always visible */
 }
 
-.card:hover .overlay {
-    opacity: 1; /* Show overlay on hover */
-}
-
+/* Adjust text size for smaller banner */
 .overlay h2 {
-    font-size: 18px;
+    font-size: 14px; /* Smaller to fit */
     margin: 0;
     text-align: center;
 }
 
 .overlay p {
-    font-size: 14px;
-    margin-top: 10px;
+    font-size: 12px; /* Smaller to fit */
+    margin: 2px 0 0;
     text-align: center;
+    line-height: 1.2; /* Tighter line height */
 }
 
+/* Remove hover effect */
+.card:hover .overlay {
+    opacity: 1; /* Already visible, no change needed */
+}
+
+/* Optional: Ensure .gridy provides padding */
 .gridy {
-    padding: 20px; /* Optional: padding around the container */
+    padding: 20px;
 }
 
 
