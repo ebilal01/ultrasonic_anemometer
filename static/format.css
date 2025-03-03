@@ -319,19 +319,19 @@ button {
     flex-wrap: wrap;
 }
 
-/* Ensure consistent image size and card layout */
+/* Two-column layout with skinnier columns */
 .two-column-container {
     display: flex;
     justify-content: space-around;
     width: 100%;
-    max-width: 1200px;
+    max-width: 800px; /* Reduced max-width for skinnier layout */
     margin: 0 auto;
     gap: 20px;
 }
 
 .column {
     flex: 1;
-    max-width: 45%;
+    max-width: 40%; /* Skinnier columns */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -343,12 +343,12 @@ button {
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 100%;
-    height: 250px; /* Fixed height for uniformity */
+    height: 350px; /* Taller cards */
 }
 
 .imgBx {
     width: 100%;
-    height: 100%; /* Match card height */
+    height: 100%; /* Match taller card height */
     position: relative;
     overflow: hidden;
     border-radius: 8px 8px 0 0;
@@ -356,46 +356,45 @@ button {
 
 .imgBx img {
     width: 100%;
-    height: 100%; /* Fill the container */
-    object-fit: cover; /* Scale image uniformly, cropping if needed */
+    height: 100%;
+    object-fit: cover; /* Scale uniformly, cropping if needed */
     display: block;
+}
+
+/* Specific adjustment for Robert White's photo */
+.imgBx.robert-white img {
+    transform: scale(0.9); /* Zoom out slightly */
 }
 
 /* Always visible banner covering lower 20% */
 .overlay {
     position: absolute;
-    bottom: 0; /* Anchor to bottom */
+    bottom: 0;
     left: 0;
     right: 0;
-    height: 20%; /* Cover lower 20% */
-    background: rgba(173, 216, 230, 0.9); /* Baby blue, semi-transparent */
+    height: 20%;
+    background: rgba(173, 216, 230, 0.9);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 5px; /* Reduced padding for smaller area */
-    border-radius: 0 0 8px 8px; /* Round bottom corners only */
+    padding: 5px;
+    border-radius: 0 0 8px 8px;
     color: #fff;
-    opacity: 1; /* Always visible */
+    opacity: 1;
 }
 
-/* Adjust text size for smaller banner */
 .overlay h2 {
-    font-size: 14px; /* Smaller to fit */
+    font-size: 14px;
     margin: 0;
     text-align: center;
 }
 
 .overlay p {
-    font-size: 12px; /* Smaller to fit */
+    font-size: 12px;
     margin: 2px 0 0;
     text-align: center;
-    line-height: 1.2; /* Tighter line height */
-}
-
-/* Remove hover effect */
-.card:hover .overlay {
-    opacity: 1; /* Already visible, no change needed */
+    line-height: 1.2;
 }
 
 /* Optional: Ensure .gridy provides padding */
