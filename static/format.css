@@ -149,7 +149,7 @@ header {
     line-height: 0.8;
     padding-top: 0%;
     padding-bottom: 0%;
-    margin-bottom: 5%;
+    margin-bottom: 2%; /* Reduced from 5% to 2% */
     background-color: rgb(117, 212, 227);
 }
 
@@ -363,7 +363,7 @@ button {
 
 /* Specific adjustment for Robert White's photo */
 .imgBx.robert-white img {
-    transform: scale(0.9); /* Zoom out slightly */
+    transform: scale(0.7); 
 }
 
 /* Always visible banner covering lower 20% */
@@ -400,8 +400,4 @@ button {
 /* Optional: Ensure .gridy provides padding */
 .gridy {
     padding: 20px;
-}
-
-.imgBx.robert-white img {
-    transform: scale(0.7); 
 }
