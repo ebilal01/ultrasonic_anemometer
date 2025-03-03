@@ -81,7 +81,7 @@ body {
     .text-content h5 {
         font-size: 28px; /* Adjust font size for better readability */
         text-align: center; /* Center align the welcome text */
-        font-family: "Lobster Two", sans-serif; /* Apply Lobster Two font */
+        font-family: "Figtree", sans-serif; /* Apply Lobster Two font */
     }
     .text-content p {
         font-size: 16px; /* Adjust font size for better readability */
@@ -109,7 +109,7 @@ body {
     .text-content h5 {
         font-size: 40px; /* Larger font size for welcome text on larger screens */
         text-align: left; /* Left align the welcome text */
-        font-family: "Lobster Two", sans-serif; /* Apply Lobster Two font */
+        font-family: "Figtree", sans-serif; /* Apply Lobster Two font */
     }
     .text-content p {
         font-size: 20px; /* Adjust font size for paragraph on larger screens */
@@ -144,7 +144,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-family: "Lobster Two";
+    font-family: "Figtree";
     padding: 30px 10%;
     color: white;
     line-height: 0.8;
@@ -230,7 +230,7 @@ nav {
 h8 {
     color: black;
     font-size: 50px;
-    font-family: "Lobster Two";
+    font-family: "Figtree";
     line-height: 1.5;
     text-align: center; 
 }
@@ -266,7 +266,7 @@ h3, h6 {
 }
 
 button {
-    font-family: "Lobster Two", sans-serif;
+    font-family: "Figtree", sans-serif;
     font-size: 16px; /* Adjust font size as needed */
 }
 
@@ -285,7 +285,7 @@ button {
 
 .text-content h5 {
     font-size: 30px; /* Adjust font size as needed */
-    font-family: "Lobster Two", sans-serif;
+    font-family: "Figtree", sans-serif;
     text-align: center;
 }
 
