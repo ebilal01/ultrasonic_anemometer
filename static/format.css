@@ -397,12 +397,10 @@ button {
     line-height: 1.2;
 }
 
-/* Optional: Ensure .gridy provides padding */
 .gridy {
     padding: 20px;
 }
 
-/* Add padding below the map */
-#map {
-    margin-bottom: 40px; /* Increased from implied 0px to 40px for padding */
+.graph-container:first-child {
+    margin-top: 20vh; /* 20% of viewport height */
 }
