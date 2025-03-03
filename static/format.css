@@ -401,3 +401,8 @@ button {
 .gridy {
     padding: 20px;
 }
+
+/* Add padding below the map */
+#map {
+    margin-bottom: 40px; /* Increased from implied 0px to 40px for padding */
+}
