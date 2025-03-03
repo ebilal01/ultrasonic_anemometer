@@ -319,43 +319,22 @@ button {
     flex-wrap: wrap;
 }
 
-/* Create four equal columns that sits next to each other */
-.column {
-    flex: 28%;
-    max-width: 29%;
-    padding: 2%; /* Changes the space between images in a single row */
-}
-
-.column img {
-    margin: 6%; /* Changes the space between images in a single column*/
-    vertical-align: middle;
-    width: 100%;
-}
-
-.gridy {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    grid-gap: 40px;
-    justify-content: center;
-}
-
-.skidrow {
+/* Updated two-column layout */
+.two-column-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around; /* Space columns evenly */
     width: 100%;
-    gap: 20px; /* Adjust this value for desired padding between columns */
+    max-width: 1200px; /* Optional: limit width */
+    margin: 0 auto; /* Center the container */
+    gap: 20px; /* Space between columns */
 }
 
-.columns {
-    flex: 1;
+.column {
+    flex: 1; /* Each column takes equal width */
+    max-width: 45%; /* Limit width to avoid overcrowding */
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-.image {
-    max-width: 100%;
-    height: auto;
 }
 
 .card {
@@ -363,20 +342,13 @@ button {
     overflow: hidden;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    margin-bottom: 20px; /* Adjust as needed for spacing between top and bottom cards */
-}
-
-.card:last-child {
-    margin-bottom: 0; /* Remove margin from last card in each column */
-}
-
-.card:hover {
-    transform: translateY(-10px);
+    width: 100%; /* Full width of column */
+    margin-bottom: 0; /* No bottom margin for single card */
 }
 
 .imgBx {
     width: 100%;
-    max-width: 100%; /* Ensure all images have the same width */
+    max-width: 100%; /* Ensure images fill the card */
     position: relative;
     overflow: hidden;
     border-radius: 8px 8px 0 0; /* Rounded corners for the image container */
@@ -425,3 +397,9 @@ button {
     margin-top: 10px;
     text-align: center;
 }
+
+.gridy {
+    padding: 20px; /* Optional: padding around the container */
+}
+
+
