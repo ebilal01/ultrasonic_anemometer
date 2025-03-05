@@ -59,7 +59,7 @@ def handle_rockblock():
 
     print(f"Received POST /rockblock - IMEI: {imei}, Data: {data}")
 
-    if imei != "301434061119410":
+    if imei != "301434061119410" and imei != "301434060195570":
         print("Invalid credentials")
         return "FAILED,10,Invalid login credentials", 400
 
