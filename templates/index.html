@@ -111,7 +111,7 @@
         <div id="peak-wind-graph" class="graph"></div>
     </div>
 
-    <!<canvas id="renderCanvas"></canvas>>
+    <!<canvas id="renderCanvas"></canvas>
 
     <div style="text-align: center;">
         <div style="margin-top: 10px; font-size: 16px;">
@@ -463,22 +463,24 @@
         }
 
         async function fetchMessageHistory() {
-            try {
-                const response = await fetch(`${BASE_URL}/message-history`);
-                if (!response.ok) return;
-                const historyData = await response.json();
+    try {
+        const response = await fetch(`${BASE_URL}/message-history`);
+        if (!response.ok) return;
+        const historyData = await response.json();
 
-                const historyList = document.getElementById('message-history');
-                historyList.innerHTML = '';
-                historyData.forEach((msg) => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `(${msg.received_time}) Msg: ${msg.message} | Lat: ${msg.latitude}, Lon: ${msg.longitude}`;
-                    historyList.appendChild(listItem);
-                });
-            } catch (error) {
-                console.error("Error fetching message history:", error);
-            }
-        }
+        const historyList = document.getElementById('message-history');
+        historyList.innerHTML = '';
+        // Take the last 10 messages (or all if less than 10)
+        const latestMessages = historyData.slice(-10);
+        latestMessages.forEach((msg) => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `(${msg.received_time}) Msg: ${msg.message} | Lat: ${msg.latitude}, Lon: ${msg.longitude}`;
+            historyList.appendChild(listItem);
+        });
+    } catch (error) {
+        console.error("Error fetching message history:", error);
+    }
+}
 
         // const canvas = document.getElementById("renderCanvas");
         // const engine = new BABYLON.Engine(canvas, true);
