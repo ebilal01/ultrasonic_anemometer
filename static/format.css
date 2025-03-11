@@ -55,6 +55,18 @@ body {
         font-size: 16px;
     }
 
+    .image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0; /* Adds spacing above and below the image */
+}
+
+.centered-image {
+    max-width: 100%; /* Ensures the image scales responsively */
+    height: auto;    /* Maintains aspect ratio */
+}
+
     .overlay p {
         font-size: 12px;
     }
