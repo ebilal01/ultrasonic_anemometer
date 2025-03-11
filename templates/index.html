@@ -12,6 +12,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.0/socket.io.js"></script>
     <script src="https://cdn.babylonjs.com/earcut.min.js"></script>
     <style>
+        .image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0; /* Adds spacing above and below the image */
+}
+
+        .centered-image {
+            max-width: 100%; /* Ensures the image scales responsively */
+            height: auto;    /* Maintains aspect ratio */
+}
         .graph-container {
             display: flex;
             flex-wrap: wrap; 
