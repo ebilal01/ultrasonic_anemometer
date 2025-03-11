@@ -14,14 +14,17 @@
     <style>
         .graph-container {
             display: flex;
+            flex-wrap: wrap; 
             justify-content: center;
             margin-top: 20px;
+            gap: 20px; 
         }
         .graph {
-            width: 45%;
+            width: 100%; 
+            max-width: 600px; 
             height: 250px;
-            margin: 0 10px;
-            position: relative; /* For positioning the modebar */
+            margin: 0;
+            position: relative; 
         }
         #renderCanvas {
             width: 100%;
@@ -208,7 +211,8 @@
         const config = {
             displayModeBar: true,
             modeBarButtonsToRemove: ['toImage', 'sendDataToCloud'],
-            displaylogo: false
+            displaylogo: false,
+            responsive: true 
         };
 
         const updateAltitudeGraph = (historyData) => {
@@ -227,10 +231,10 @@
             }];
 
             const layout = {
-                title: { text: "Altitude", standoff: 20 },
-                xaxis: { title: "Time (s)" },
-                yaxis: { title: "Altitude (m)" },
-                margin: { t: 60, b: 40, l: 40, r: 20 },
+                title: { text: "Altitude", font: { size: 14 }, standoff: 10 },
+                xaxis: { title: { text: "Time (s)", standoff: 10 }, automargin: true },
+                yaxis: { title: { text: "Altitude (m)", standoff: 10 }, automargin: true },
+                margin: { t: 40, b: 60, l: 60, r: 20 },
                 height: 250
             };
 
@@ -252,10 +256,10 @@
             ];
 
             const layout = {
-                title: { text: "Temperature", standoff: 20 },
-                xaxis: { title: "Time (s)" },
-                yaxis: { title: "Temperature (°C)" },
-                margin: { t: 60, b: 40, l: 40, r: 20 },
+                title: { text: "Temperature", font: { size: 14 }, standoff: 10 },
+                xaxis: { title: { text: "Time (s)", standoff: 10 }, automargin: true },
+                yaxis: { title: { text: "Temperature (°C)", standoff: 10 }, automargin: true },
+                margin: { t: 40, b: 60, l: 60, r: 20 },
                 height: 250
             };
 
@@ -286,10 +290,10 @@
             ];
 
             const layout = {
-                title: { text: "Orientation", standoff: 20 },
-                xaxis: { title: "Time (s)" },
-                yaxis: { title: "Degrees" },
-                margin: { t: 60, b: 40, l: 40, r: 20 },
+                title: { text: "Orientation", font: { size: 14 }, standoff: 10 },
+                xaxis: { title: { text: "Time (s)", standoff: 10 }, automargin: true },
+                yaxis: { title: { text: "Degrees", standoff: 10 }, automargin: true },
+                margin: { t: 40, b: 60, l: 60, r: 20 },
                 height: 250
             };
 
@@ -312,10 +316,10 @@
             }];
 
             const layout = {
-                title: { text: "Pressure", standoff: 20 },
-                xaxis: { title: "Time (s)" },
-                yaxis: { title: "Pressure (mbar)" },
-                margin: { t: 60, b: 40, l: 40, r: 20 },
+                title: { text: "Pressure", font: { size: 14 }, standoff: 10 },
+                xaxis: { title: { text: "Time (s)", standoff: 10 }, automargin: true },
+                yaxis: { title: { text: "Pressure (mbar)", standoff: 10 }, automargin: true },
+                margin: { t: 40, b: 60, l: 60, r: 20 },
                 height: 250
             };
 
@@ -337,10 +341,10 @@
             ];
 
             const layout = {
-                title: { text: "Average Wind", standoff: 20 },
-                xaxis: { title: "Time (s)" },
-                yaxis: { title: "Velocity (m/s)" },
-                margin: { t: 60, b: 40, l: 40, r: 20 },
+                title: { text: "Average Wind", font: { size: 14 }, standoff: 10 },
+                xaxis: { title: { text: "Time (s)", standoff: 10 }, automargin: true },
+                yaxis: { title: { text: "Velocity (m/s)", standoff: 10 }, automargin: true },
+                margin: { t: 40, b: 60, l: 60, r: 20 },
                 height: 250
             };
 
@@ -362,13 +366,12 @@
             ];
 
             const layout = {
-                title: { text: "Std Dev of Wind", standoff: 20 },
-                xaxis: { title: "Time (s)" },
-                yaxis: { title: "Std Dev (m/s)" },
-                margin: { t: 60, b: 40, l: 40, r: 20 },
+                title: { text: "Std Dev of Wind", font: { size: 14 }, standoff: 10 },
+                xaxis: { title: { text: "Time (s)", standoff: 10 }, automargin: true },
+                yaxis: { title: { text: "Std Dev (m/s)", standoff: 10 }, automargin: true },
+                margin: { t: 40, b: 60, l: 60, r: 20 },
                 height: 250
             };
-
             Plotly.react('stddev-wind-graph', graphData, layout, config);
         };
 
@@ -387,10 +390,10 @@
             ];
 
             const layout = {
-                title: { text: "Peak Wind", standoff: 20 },
-                xaxis: { title: "Time (s)" },
-                yaxis: { title: "Velocity (m/s)" },
-                margin: { t: 60, b: 40, l: 40, r: 20 },
+                title: { text: "Peak Wind", font: { size: 14 }, standoff: 10 },
+                xaxis: { title: { text: "Time (s)", standoff: 10 }, automargin: true },
+                yaxis: { title: { text: "Velocity (m/s)", standoff: 10 }, automargin: true },
+                margin: { t: 40, b: 60, l: 60, r: 20 },
                 height: 250
             };
 
