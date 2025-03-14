@@ -135,7 +135,7 @@
     </div>
 
     <div class="image-container">
-    <img src="/static/images/Screenshot 2025-03-10 222146.png" alt="Flight Data Screenshot" class="centered-image">
+    <img src="/static/images/AxisDefinition.png" alt="Flight Data Screenshot" class="centered-image">
 </div>
 
     <!<canvas id="renderCanvas"></canvas>
@@ -180,7 +180,7 @@
             <div class="card">
                 <a href="https://engineering.tufts.edu/me/people/faculty/robert-white">
                     <div class="imgBx robert-white"> <!-- Class already here -->
-                        <img src="/static/images/Screenshot 2025-03-02 221014.png" alt="Robert White">
+                        <img src="/static/images/image001.jpg" alt="Robert White">
                         <div class="overlay">
                             <h2>Prof. Robert White</h2>
                         </div>
@@ -256,7 +256,7 @@
 
             const layout = {
                 title: { text: "Altitude", font: { size: 14 }, standoff: 10 },
-                xaxis: { title: { text: "Time (s)", standoff: 10 }, automargin: true },
+                xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
                 yaxis: { title: { text: "Altitude (m)", standoff: 10 }, automargin: true },
                 margin: { t: 40, b: 60, l: 60, r: 20 },
                 height: 250
@@ -281,7 +281,7 @@
 
             const layout = {
                 title: { text: "Temperature", font: { size: 14 }, standoff: 10 },
-                xaxis: { title: { text: "Time (s)", standoff: 10 }, automargin: true },
+                xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
                 yaxis: { title: { text: "Temperature (°C)", standoff: 10 }, automargin: true },
                 margin: { t: 40, b: 60, l: 60, r: 20 },
                 height: 250
@@ -291,7 +291,7 @@
             const latest = historyData[historyData.length - 1];
             if (latest) {
                 if (latest.temperature_cj_c !== undefined) {
-                    document.getElementById("temp").textContent = latest.temperature_cj_c.toFixed(1);
+                    document.getElementById("temp").textContent = latest.temperature_tctip_c.toFixed(1);
                 }
                 if (latest.pressure_mbar !== undefined) {
                     document.getElementById("pressure").textContent = latest.pressure_mbar.toFixed(1);
@@ -315,7 +315,7 @@
 
             const layout = {
                 title: { text: "Orientation", font: { size: 14 }, standoff: 10 },
-                xaxis: { title: { text: "Time (s)", standoff: 10 }, automargin: true },
+                xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
                 yaxis: { title: { text: "Degrees", standoff: 10 }, automargin: true },
                 margin: { t: 40, b: 60, l: 60, r: 20 },
                 height: 250
@@ -341,7 +341,7 @@
 
             const layout = {
                 title: { text: "Pressure", font: { size: 14 }, standoff: 10 },
-                xaxis: { title: { text: "Time (s)", standoff: 10 }, automargin: true },
+                xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
                 yaxis: { title: { text: "Pressure (mbar)", standoff: 10 }, automargin: true },
                 margin: { t: 40, b: 60, l: 60, r: 20 },
                 height: 250
@@ -366,7 +366,7 @@
 
             const layout = {
                 title: { text: "Average Wind", font: { size: 14 }, standoff: 10 },
-                xaxis: { title: { text: "Time (s)", standoff: 10 }, automargin: true },
+                xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
                 yaxis: { title: { text: "Velocity (m/s)", standoff: 10 }, automargin: true },
                 margin: { t: 40, b: 60, l: 60, r: 20 },
                 height: 250
@@ -391,7 +391,7 @@
 
             const layout = {
                 title: { text: "Std Dev of Wind", font: { size: 14 }, standoff: 10 },
-                xaxis: { title: { text: "Time (s)", standoff: 10 }, automargin: true },
+                xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
                 yaxis: { title: { text: "Std Dev (m/s)", standoff: 10 }, automargin: true },
                 margin: { t: 40, b: 60, l: 60, r: 20 },
                 height: 250
@@ -415,7 +415,7 @@
 
             const layout = {
                 title: { text: "Peak Wind", font: { size: 14 }, standoff: 10 },
-                xaxis: { title: { text: "Time (s)", standoff: 10 }, automargin: true },
+                xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
                 yaxis: { title: { text: "Velocity (m/s)", standoff: 10 }, automargin: true },
                 margin: { t: 40, b: 60, l: 60, r: 20 },
                 height: 250
