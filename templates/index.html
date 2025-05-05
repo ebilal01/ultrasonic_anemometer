@@ -350,13 +350,15 @@
     }];
 
     const layout = {
-        title: { text: "Pressure", font: { size: 14 }, standoff: 10 },
+        title: { text: "Pressure (Log Scale)", font: { size: 14 }, standoff: 10 },
         xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
         yaxis: { 
             title: { text: "Pressure (mbar)", standoff: 10 }, 
             automargin: true,
-            type: 'log', // Logarithmic scale
-            range: [Math.log10(0.1), Math.log10(10000)] // Extended range to include 1000 mbar and higher
+            type: 'log', // Explicitly set logarithmic scale
+            range: [Math.log10(0.1), Math.log10(10000)], // Range from 0.1 to 10,000 mbar
+            tickformat: '.1f', // Format ticks for clarity (e.g., 0.1, 1, 10, 100)
+            minor: { show: true } // Show minor ticks for better readability
         },
         margin: { t: 40, b: 60, l: 60, r: 20 },
         height: 250
@@ -364,7 +366,6 @@
 
     Plotly.react('pressure-graph', graphData, layout, config);
 };
-
         const updateAverageWindGraph = (historyData) => {
             const timestamps = historyData.map(data => data.received_time).filter(t => t);
             const vavg1 = historyData.map(data => data.vavg_1_mps).filter(v => v !== undefined);
