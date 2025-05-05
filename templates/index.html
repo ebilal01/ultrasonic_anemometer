@@ -335,30 +335,39 @@
         };
 
     const updatePressureGraph = (historyData) => {
-            const timestamps = historyData.map(data => data.received_time).filter(t => t);
-            const pressures = historyData.map(data => data.pressure_mbar).filter(p => p !== undefined);
+    const timestamps = historyData.map(data => data.received_time).filter(t => t);
+    const pressures = historyData.map(data => data.pressure_mbar).filter(p => p !== undefined);
 
-            if (timestamps.length === 0 || pressures.length === 0) return;
+    if (timestamps.length === 0 || pressures.length === 0) return;
 
-            const graphData = [{
-                x: timestamps,
-                y: pressures,
-                type: 'scatter',
-                mode: 'lines+markers',
-                line: { color: 'orange' },
-                name: "Pressure (mbar)"
-            }];
+    const graphData = [{
+        x: timestamps,
+        y: pressures,
+        type: 'scatter',
+        mode: 'lines+markers',
+        line: { color: 'orange' },
+        name: "Pressure (mbar)"
+    }];
 
-            const layout = {
-                title: { text: "Pressure", font: { size: 14 }, standoff: 10 },
-                xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
-                yaxis: { title: { text: "Pressure (mbar)", standoff: 10 }, automargin: true },
-                margin: { t: 40, b: 60, l: 60, r: 20 },
-                height: 250
-            };
+    const layout = {
+        title: { text: "Pressure", font: { size: 14 }, standoff: 10 },
+        xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
+        yaxis: { title: { text: "Pressure (mbar)", standoff: 10 }, automargin: true },
+        margin: { t: 40, b: 60, l: 60, r: 20 },
+        height: 250
+    };
 
-            Plotly.react('pressure-graph', graphData, layout, config);
-        };
+    const pressureGraphDiv = document.getElementById('pressure-graph');
+    if (pressureGraphDiv && pressureGraphDiv._fullLayout) {
+        const currentLayout = pressureGraphDiv._fullLayout;
+        if (currentLayout.xaxis.range && currentLayout.yaxis.range) {
+            layout.xaxis.range = currentLayout.xaxis.range;
+            layout.yaxis.range = currentLayout.yaxis.range;
+        }
+    }
+
+    Plotly.react('pressure-graph', graphData, layout, config);
+};
         
         const updateAverageWindGraph = (historyData) => {
             const timestamps = historyData.map(data => data.received_time).filter(t => t);
