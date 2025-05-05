@@ -213,24 +213,34 @@
 
         map.on('zoomstart', () => { hasUserInteracted = true; });
 
-        const updateMap = (historyData) => {
-            flightPath.setLatLngs([]);
-            historyData.forEach(data => {
-                if (data.latitude && data.longitude) {
-                    const latLng = [data.latitude, data.longitude];
-                    flightPath.addLatLng(latLng);
-                }
-            });
-            const latest = historyData[historyData.length - 1];
-            if (latest && latest.latitude && latest.longitude) {
-                marker.setLatLng([latest.latitude, latest.longitude]);
-                document.getElementById('lat').textContent = latest.latitude.toFixed(6);
-                document.getElementById('lon').textContent = latest.longitude.toFixed(6);
-                if (!hasUserInteracted && flightPath.getLatLngs().length > 1) {
-                    map.fitBounds(flightPath.getBounds());
-                }
+    const updateMap = (historyData) => {
+    flightPath.setLatLngs([]);
+    let prevLng = null;
+    
+    historyData.forEach(data => {
+        if (data.latitude && data.longitude) {
+            let lng = data.longitude;
+            // Adjust longitude to prevent wrapping across the date line
+            if (prevLng !== null) {
+                while (lng - prevLng > 180) lng -= 360;
+                while (lng - prevLng < -180) lng += 360;
             }
-        };
+            const latLng = [data.latitude, lng];
+            flightPath.addLatLng(latLng);
+            prevLng = lng;
+        }
+    });
+    
+    const latest = historyData[historyData.length - 1];
+    if (latest && latest.latitude && latest.longitude) {
+        marker.setLatLng([latest.latitude, latest.longitude]);
+        document.getElementById('lat').textContent = latest.latitude.toFixed(6);
+        document.getElementById('lon').textContent = latest.longitude.toFixed(6);
+        if (!hasUserInteracted && flightPath.getLatLngs().length > 1) {
+            map.fitBounds(flightPath.getBounds());
+        }
+    }
+};
 
         const config = {
             displayModeBar: true,
@@ -240,7 +250,7 @@
         };
 
         const updateAltitudeGraph = (historyData) => {
-            const timestamps = historyData.map(data => data.sent_time).filter(t => t);
+            const timestamps = historyData.map(data => data.received_time).filter(t => t);
             const altitudes = historyData.map(data => data.altitude).filter(a => a !== undefined);
 
             if (timestamps.length === 0 || altitudes.length === 0) return;
@@ -266,7 +276,7 @@
         };
 
         const updateTemperatureGraph = (historyData) => {
-            const timestamps = historyData.map(data => data.sent_time).filter(t => t);
+            const timestamps = historyData.map(data => data.received_time).filter(t => t);
             const ttip = historyData.map(data => data.temperature_tctip_c).filter(t => t !== undefined);
             const tcj = historyData.map(data => data.temperature_cj_c).filter(t => t !== undefined);
             const tpht = historyData.map(data => data.temperature_pht_c).filter(t => t !== undefined);
@@ -300,7 +310,7 @@
         };
 
         const updateOrientationGraph = (historyData) => {
-            const timestamps = historyData.map(data => data.sent_time).filter(t => t);
+            const timestamps = historyData.map(data => data.received_time).filter(t => t);
             const pitch = historyData.map(data => data.pitch_deg).filter(p => p !== undefined);
             const roll = historyData.map(data => data.roll_deg).filter(r => r !== undefined);
             const yaw = historyData.map(data => data.yaw_deg).filter(y => y !== undefined);
@@ -325,7 +335,7 @@
         };
 
         const updatePressureGraph = (historyData) => {
-            const timestamps = historyData.map(data => data.sent_time).filter(t => t);
+            const timestamps = historyData.map(data => data.received_time).filter(t => t);
             const pressures = historyData.map(data => data.pressure_mbar).filter(p => p !== undefined);
 
             if (timestamps.length === 0 || pressures.length === 0) return;
@@ -351,7 +361,7 @@
         };
 
         const updateAverageWindGraph = (historyData) => {
-            const timestamps = historyData.map(data => data.sent_time).filter(t => t);
+            const timestamps = historyData.map(data => data.received_time).filter(t => t);
             const vavg1 = historyData.map(data => data.vavg_1_mps).filter(v => v !== undefined);
             const vavg2 = historyData.map(data => data.vavg_2_mps).filter(v => v !== undefined);
             const vavg3 = historyData.map(data => data.vavg_3_mps).filter(v => v !== undefined);
@@ -376,7 +386,7 @@
         };
 
         const updateStdDevWindGraph = (historyData) => {
-            const timestamps = historyData.map(data => data.sent_time).filter(t => t);
+            const timestamps = historyData.map(data => data.received_time).filter(t => t);
             const vstd1 = historyData.map(data => data.vstd_1_mps).filter(v => v !== undefined);
             const vstd2 = historyData.map(data => data.vstd_2_mps).filter(v => v !== undefined);
             const vstd3 = historyData.map(data => data.vstd_3_mps).filter(v => v !== undefined);
@@ -400,7 +410,7 @@
         };
 
         const updatePeakWindGraph = (historyData) => {
-            const timestamps = historyData.map(data => data.sent_time).filter(t => t);
+            const timestamps = historyData.map(data => data.received_time).filter(t => t);
             const vpk1 = historyData.map(data => data.vpk_1_mps).filter(v => v !== undefined);
             const vpk2 = historyData.map(data => data.vpk_2_mps).filter(v => v !== undefined);
             const vpk3 = historyData.map(data => data.vpk_3_mps).filter(v => v !== undefined);
