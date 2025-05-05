@@ -233,6 +233,23 @@
     
     const latest = historyData[historyData.length - 1];
     if (latest && latest.latitude && latest.longitude) {
+        let.markerLng = latest.longitude;
+        // Adjust marker longitude to match the polyline’s normalized coordinates
+        if (prevLng !== null) {
+            while (markerLng - prevLng > 180) markerLng -= 360;
+            while (markerLng - prevLng < -180) markerLng += 360;
+        }
+        marker.setLatLng([latest.latitude, markerLng]);
+        document.getElementById('lat').textContent = latest.latitude.toFixed(6);
+        document.getElementById('lon').textContent = latest.longitude.toFixed(6);
+        if (!hasUserInteracted && flightPath.getLatLngs().length > 1) {
+            map.fitBounds(flightPath.getBounds());
+        }
+    }
+};
+    
+    const latest = historyData[historyData.length - 1];
+    if (latest && latest.latitude && latest.longitude) {
         marker.setLatLng([latest.latitude, latest.longitude]);
         document.getElementById('lat').textContent = latest.latitude.toFixed(6);
         document.getElementById('lon').textContent = latest.longitude.toFixed(6);
