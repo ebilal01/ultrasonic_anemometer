@@ -250,91 +250,118 @@
         };
 
         const updateAltitudeGraph = (historyData) => {
-            const timestamps = historyData.map(data => data.received_time).filter(t => t);
-            const altitudes = historyData.map(data => data.altitude).filter(a => a !== undefined);
+    const timestamps = historyData.map(data => data.received_time).filter(t => t);
+    const altitudes = historyData.map(data => data.altitude).filter(a => a !== undefined);
 
-            if (timestamps.length === 0 || altitudes.length === 0) return;
+    if (timestamps.length === 0 || altitudes.length === 0) return;
 
-            const graphData = [{
-                x: timestamps,
-                y: altitudes,
-                type: 'scatter',
-                mode: 'lines+markers',
-                line: { color: 'blue' },
-                name: "Altitude (m)"
-            }];
+    const graphData = [{
+        x: timestamps,
+        y: altitudes,
+        type: 'scatter',
+        mode: 'lines+markers',
+        line: { color: 'blue' },
+        name: "Altitude (m)"
+    }];
 
-            const layout = {
-                title: { text: "Altitude", font: { size: 14 }, standoff: 10 },
-                xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
-                yaxis: { title: { text: "Altitude (m)", standoff: 10 }, automargin: true },
-                margin: { t: 40, b: 60, l: 60, r: 20 },
-                height: 250
-            };
+    const layout = {
+        title: { text: "Altitude", font: { size: 14 }, standoff: 10 },
+        xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
+        yaxis: { title: { text: "Altitude (m)", standoff: 10 }, automargin: true },
+        margin: { t: 40, b: 60, l: 60, r: 20 },
+        height: 250
+    };
 
-            Plotly.react('altitude-graph', graphData, layout, config);
-        };
+    const graphDiv = document.getElementById('altitude-graph');
+    if (graphDiv && graphDiv._fullLayout) {
+        const currentLayout = graphDiv._fullLayout;
+        if (currentLayout.xaxis.range && currentLayout.yaxis.range) {
+            layout.xaxis.range = currentLayout.xaxis.range;
+            layout.yaxis.range = currentLayout.yaxis.range;
+        }
+    }
 
-        const updateTemperatureGraph = (historyData) => {
-            const timestamps = historyData.map(data => data.received_time).filter(t => t);
-            const ttip = historyData.map(data => data.temperature_tctip_c).filter(t => t !== undefined);
-            const tcj = historyData.map(data => data.temperature_cj_c).filter(t => t !== undefined);
-            const tpht = historyData.map(data => data.temperature_pht_c).filter(t => t !== undefined);
+    Plotly.react('altitude-graph', graphData, layout, config);
+};
 
-            if (timestamps.length === 0) return;
+const updateTemperatureGraph = (historyData) => {
+    const timestamps = historyData.map(data => data.received_time).filter(t => t);
+    const ttip = historyData.map(data => data.temperature_tctip_c).filter(t => t !== undefined);
+    const tcj = historyData.map(data => data.temperature_cj_c).filter(t => t !== undefined);
+    const tpht = historyData.map(data => data.temperature_pht_c).filter(t => t !== undefined);
 
-            const tempGraphData = [
-                { x: timestamps, y: ttip, type: 'scatter', mode: 'lines+markers', name: 'Ttip (°C)', line: { color: 'red' } },
-                { x: timestamps, y: tcj, type: 'scatter', mode: 'lines+markers', name: 'Tcj (°C)', line: { color: 'orange' } },
-                { x: timestamps, y: tpht, type: 'scatter', mode: 'lines+markers', name: 'Tpht (°C)', line: { color: 'yellow' } }
-            ];
+    if (timestamps.length === 0) return;
 
-            const layout = {
-                title: { text: "Temperature", font: { size: 14 }, standoff: 10 },
-                xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
-                yaxis: { title: { text: "Temperature (°C)", standoff: 10 }, automargin: true },
-                margin: { t: 40, b: 60, l: 60, r: 20 },
-                height: 250
-            };
+    const tempGraphData = [
+        { x: timestamps, y: ttip, type: 'scatter', mode: 'lines+markers', name: 'Ttip (°C)', line: { color: 'red' } },
+        { x: timestamps, y: tcj, type: 'scatter', mode: 'lines+markers', name: 'Tcj (°C)', line: { color: 'orange' } },
+        { x: timestamps, y: tpht, type: 'scatter', mode: 'lines+markers', name: 'Tpht (°C)', line: { color: 'yellow' } }
+    ];
 
-            Plotly.react('temperature-graph', tempGraphData, layout, config);
-            const latest = historyData[historyData.length - 1];
-            if (latest) {
-                if (latest.temperature_cj_c !== undefined) {
-                    document.getElementById("temp").textContent = latest.temperature_tctip_c.toFixed(1);
-                }
-                if (latest.pressure_mbar !== undefined) {
-                    document.getElementById("pressure").textContent = latest.pressure_mbar.toFixed(1);
-                }
-            }
-        };
+    const layout = {
+        title: { text: "Temperature", font: { size: 14 }, standoff: 10 },
+        xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
+        yaxis: { title: { text: "Temperature (°C)", standoff: 10 }, automargin: true },
+        margin: { t: 40, b: 60, l: 60, r: 20 },
+        height: 250
+    };
 
-        const updateOrientationGraph = (historyData) => {
-            const timestamps = historyData.map(data => data.received_time).filter(t => t);
-            const pitch = historyData.map(data => data.pitch_deg).filter(p => p !== undefined);
-            const roll = historyData.map(data => data.roll_deg).filter(r => r !== undefined);
-            const yaw = historyData.map(data => data.yaw_deg).filter(y => y !== undefined);
+    const graphDiv = document.getElementById('temperature-graph');
+    if (graphDiv && graphDiv._fullLayout) {
+        const currentLayout = graphDiv._fullLayout;
+        if (currentLayout.xaxis.range && currentLayout.yaxis.range) {
+            layout.xaxis.range = currentLayout.xaxis.range;
+            layout.yaxis.range = currentLayout.yaxis.range;
+        }
+    }
 
-            if (timestamps.length === 0) return;
+    Plotly.react('temperature-graph', tempGraphData, layout, config);
+    const latest = historyData[historyData.length - 1];
+    if (latest) {
+        if (latest.temperature_cj_c !== undefined) {
+            document.getElementById("temp").textContent = latest.temperature_tctip_c.toFixed(1);
+        }
+        if (latest.pressure_mbar !== undefined) {
+            document.getElementById("pressure").textContent = latest.pressure_mbar.toFixed(1);
+        }
+    }
+};
 
-            const graphData = [
-                { x: timestamps, y: pitch, type: 'scatter', mode: 'lines+markers', name: 'Pitch (°)', line: { color: 'blue' } },
-                { x: timestamps, y: roll, type: 'scatter', mode: 'lines+markers', name: 'Roll (°)', line: { color: 'green' } },
-                { x: timestamps, y: yaw, type: 'scatter', mode: 'lines+markers', name: 'Yaw (°)', line: { color: 'purple' } }
-            ];
+const updateOrientationGraph = (historyData) => {
+    const timestamps = historyData.map(data => data.received_time).filter(t => t);
+    const pitch = historyData.map(data => data.pitch_deg).filter(p => p !== undefined);
+    const roll = historyData.map(data => data.roll_deg).filter(r => r !== undefined);
+    const yaw = historyData.map(data => data.yaw_deg).filter(y => y !== undefined);
 
-            const layout = {
-                title: { text: "Orientation", font: { size: 14 }, standoff: 10 },
-                xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
-                yaxis: { title: { text: "Degrees", standoff: 10 }, automargin: true },
-                margin: { t: 40, b: 60, l: 60, r: 20 },
-                height: 250
-            };
+    if (timestamps.length === 0) return;
 
-            Plotly.react('orientation-graph', graphData, layout, config);
-        };
+    const graphData = [
+        { x: timestamps, y: pitch, type: 'scatter', mode: 'lines+markers', name: 'Pitch (°)', line: { color: 'blue' } },
+        { x: timestamps, y: roll, type: 'scatter', mode: 'lines+markers', name: 'Roll (°)', line: { color: 'green' } },
+        { x: timestamps, y: yaw, type: 'scatter', mode: 'lines+markers', name: 'Yaw (°)', line: { color: 'purple' } }
+    ];
 
-    const updatePressureGraph = (historyData) => {
+    const layout = {
+        title: { text: "Orientation", font: { size: 14 }, standoff: 10 },
+        xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
+        yaxis: { title: { text: "Degrees", standoff: 10 }, automargin: true },
+        margin: { t: 40, b: 60, l: 60, r: 20 },
+        height: 250
+    };
+
+    const graphDiv = document.getElementById('orientation-graph');
+    if (graphDiv && graphDiv._fullLayout) {
+        const currentLayout = graphDiv._fullLayout;
+        if (currentLayout.xaxis.range && currentLayout.yaxis.range) {
+            layout.xaxis.range = currentLayout.xaxis.range;
+            layout.yaxis.range = currentLayout.yaxis.range;
+        }
+    }
+
+    Plotly.react('orientation-graph', graphData, layout, config);
+};
+
+const updatePressureGraph = (historyData) => {
     const timestamps = historyData.map(data => data.received_time).filter(t => t);
     const pressures = historyData.map(data => data.pressure_mbar).filter(p => p !== undefined);
 
@@ -357,9 +384,9 @@
         height: 250
     };
 
-    const pressureGraphDiv = document.getElementById('pressure-graph');
-    if (pressureGraphDiv && pressureGraphDiv._fullLayout) {
-        const currentLayout = pressureGraphDiv._fullLayout;
+    const graphDiv = document.getElementById('pressure-graph');
+    if (graphDiv && graphDiv._fullLayout) {
+        const currentLayout = graphDiv._fullLayout;
         if (currentLayout.xaxis.range && currentLayout.yaxis.range) {
             layout.xaxis.range = currentLayout.xaxis.range;
             layout.yaxis.range = currentLayout.yaxis.range;
@@ -368,80 +395,108 @@
 
     Plotly.react('pressure-graph', graphData, layout, config);
 };
-        
-        const updateAverageWindGraph = (historyData) => {
-            const timestamps = historyData.map(data => data.received_time).filter(t => t);
-            const vavg1 = historyData.map(data => data.vavg_1_mps).filter(v => v !== undefined);
-            const vavg2 = historyData.map(data => data.vavg_2_mps).filter(v => v !== undefined);
-            const vavg3 = historyData.map(data => data.vavg_3_mps).filter(v => v !== undefined);
 
-            if (timestamps.length === 0) return;
+const updateAverageWindGraph = (historyData) => {
+    const timestamps = historyData.map(data => data.received_time).filter(t => t);
+    const vavg1 = historyData.map(data => data.vavg_1_mps).filter(v => v !== undefined);
+    const vavg2 = historyData.map(data => data.vavg_2_mps).filter(v => v !== undefined);
+    const vavg3 = historyData.map(data => data.vavg_3_mps).filter(v => v !== undefined);
 
-            const graphData = [
-                { x: timestamps, y: vavg1, type: 'scatter', mode: 'lines+markers', name: 'Vavg 1 (m/s)', line: { color: 'red' } },
-                { x: timestamps, y: vavg2, type: 'scatter', mode: 'lines+markers', name: 'Vavg 2 (m/s)', line: { color: 'green' } },
-                { x: timestamps, y: vavg3, type: 'scatter', mode: 'lines+markers', name: 'Vavg 3 (m/s)', line: { color: 'blue' } }
-            ];
+    if (timestamps.length === 0) return;
 
-            const layout = {
-                title: { text: "Average Wind", font: { size: 14 }, standoff: 10 },
-                xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
-                yaxis: { title: { text: "Velocity (m/s)", standoff: 10 }, automargin: true },
-                margin: { t: 40, b: 60, l: 60, r: 20 },
-                height: 250
-            };
+    const graphData = [
+        { x: timestamps, y: vavg1, type: 'scatter', mode: 'lines+markers', name: 'Vavg 1 (m/s)', line: { color: 'red' } },
+        { x: timestamps, y: vavg2, type: 'scatter', mode: 'lines+markers', name: 'Vavg 2 (m/s)', line: { color: 'green' } },
+        { x: timestamps, y: vavg3, type: 'scatter', mode: 'lines+markers', name: 'Vavg 3 (m/s)', line: { color: 'blue' } }
+    ];
 
-            Plotly.react('average-wind-graph', graphData, layout, config);
-        };
+    const layout = {
+        title: { text: "Average Wind", font: { size: 14 }, standoff: 10 },
+        xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
+        yaxis: { title: { text: "Velocity (m/s)", standoff: 10 }, automargin: true },
+        margin: { t: 40, b: 60, l: 60, r: 20 },
+        height: 250
+    };
 
-        const updateStdDevWindGraph = (historyData) => {
-            const timestamps = historyData.map(data => data.received_time).filter(t => t);
-            const vstd1 = historyData.map(data => data.vstd_1_mps).filter(v => v !== undefined);
-            const vstd2 = historyData.map(data => data.vstd_2_mps).filter(v => v !== undefined);
-            const vstd3 = historyData.map(data => data.vstd_3_mps).filter(v => v !== undefined);
+    const graphDiv = document.getElementById('average-wind-graph');
+    if (graphDiv && graphDiv._fullLayout) {
+        const currentLayout = graphDiv._fullLayout;
+        if (currentLayout.xaxis.range && currentLayout.yaxis.range) {
+            layout.xaxis.range = currentLayout.xaxis.range;
+            layout.yaxis.range = currentLayout.yaxis.range;
+        }
+    }
 
-            if (timestamps.length === 0) return;
+    Plotly.react('average-wind-graph', graphData, layout, config);
+};
 
-            const graphData = [
-                { x: timestamps, y: vstd1, type: 'scatter', mode: 'lines+markers', name: 'Vstd 1 (m/s)', line: { color: 'red' } },
-                { x: timestamps, y: vstd2, type: 'scatter', mode: 'lines+markers', name: 'Vstd 2 (m/s)', line: { color: 'green' } },
-                { x: timestamps, y: vstd3, type: 'scatter', mode: 'lines+markers', name: 'Vstd 3 (m/s)', line: { color: 'blue' } }
-            ];
+const updateStdDevWindGraph = (historyData) => {
+    const timestamps = historyData.map(data => data.received_time).filter(t => t);
+    const vstd1 = historyData.map(data => data.vstd_1_mps).filter(v => v !== undefined);
+    const vstd2 = historyData.map(data => data.vstd_2_mps).filter(v => v !== undefined);
+    const vstd3 = historyData.map(data => data.vstd_3_mps).filter(v => v !== undefined);
 
-            const layout = {
-                title: { text: "Std Dev of Wind", font: { size: 14 }, standoff: 10 },
-                xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
-                yaxis: { title: { text: "Std Dev (m/s)", standoff: 10 }, automargin: true },
-                margin: { t: 40, b: 60, l: 60, r: 20 },
-                height: 250
-            };
-            Plotly.react('stddev-wind-graph', graphData, layout, config);
-        };
+    if (timestamps.length === 0) return;
 
-        const updatePeakWindGraph = (historyData) => {
-            const timestamps = historyData.map(data => data.received_time).filter(t => t);
-            const vpk1 = historyData.map(data => data.vpk_1_mps).filter(v => v !== undefined);
-            const vpk2 = historyData.map(data => data.vpk_2_mps).filter(v => v !== undefined);
-            const vpk3 = historyData.map(data => data.vpk_3_mps).filter(v => v !== undefined);
+    const graphData = [
+        { x: timestamps, y: vstd1, type: 'scatter', mode: 'lines+markers', name: 'Vstd 1 (m/s)', line: { color: 'red' } },
+        { x: timestamps, y: vstd2, type: 'scatter', mode: 'lines+markers', name: 'Vstd 2 (m/s)', line: { color: 'green' } },
+        { x: timestamps, y: vstd3, type: 'scatter', mode: 'lines+markers', name: 'Vstd 3 (m/s)', line: { color: 'blue' } }
+    ];
 
-            if (timestamps.length === 0) return;
+    const layout = {
+        title: { text: "Std Dev of Wind", font: { size: 14 }, standoff: 10 },
+        xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
+        yaxis: { title: { text: "Std Dev (m/s)", standoff: 10 }, automargin: true },
+        margin: { t: 40, b: 60, l: 60, r: 20 },
+        height: 250
+    };
 
-            const graphData = [
-                { x: timestamps, y: vpk1, type: 'scatter', mode: 'lines+markers', name: 'Vpk 1 (m/s)', line: { color: 'red' } },
-                { x: timestamps, y: vpk2, type: 'scatter', mode: 'lines+markers', name: 'Vpk 2 (m/s)', line: { color: 'green' } },
-                { x: timestamps, y: vpk3, type: 'scatter', mode: 'lines+markers', name: 'Vpk 3 (m/s)', line: { color: 'blue' } }
-            ];
+    const graphDiv = document.getElementById('stddev-wind-graph');
+    if (graphDiv && graphDiv._fullLayout) {
+        const currentLayout = graphDiv._fullLayout;
+        if (currentLayout.xaxis.range && currentLayout.yaxis.range) {
+            layout.xaxis.range = currentLayout.xaxis.range;
+            layout.yaxis.range = currentLayout.yaxis.range;
+        }
+    }
 
-            const layout = {
-                title: { text: "Peak Wind", font: { size: 14 }, standoff: 10 },
-                xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
-                yaxis: { title: { text: "Velocity (m/s)", standoff: 10 }, automargin: true },
-                margin: { t: 40, b: 60, l: 60, r: 20 },
-                height: 250
-            };
+    Plotly.react('stddev-wind-graph', graphData, layout, config);
+};
 
-            Plotly.react('peak-wind-graph', graphData, layout, config);
-        };
+const updatePeakWindGraph = (historyData) => {
+    const timestamps = historyData.map(data => data.received_time).filter(t => t);
+    const vpk1 = historyData.map(data => data.vpk_1_mps).filter(v => v !== undefined);
+    const vpk2 = historyData.map(data => data.vpk_2_mps).filter(v => v !== undefined);
+    const vpk3 = historyData.map(data => data.vpk_3_mps).filter(v => v !== undefined);
+
+    if (timestamps.length === 0) return;
+
+    const graphData = [
+        { x: timestamps, y: vpk1, type: 'scatter', mode: 'lines+markers', name: 'Vpk 1 (m/s)', line: { color: 'red' } },
+        { x: timestamps, y: vpk2, type: 'scatter', mode: 'lines+markers', name: 'Vpk 2 (m/s)', line: { color: 'green' } },
+        { x: timestamps, y: vpk3, type: 'scatter', mode: 'lines+markers', name: 'Vpk 3 (m/s)', line: { color: 'blue' } }
+    ];
+
+    const layout = {
+        title: { text: "Peak Wind", font: { size: 14 }, standoff: 10 },
+        xaxis: { title: { text: "UTC Time (s)", standoff: 10 }, automargin: true },
+        yaxis: { title: { text: "Velocity (m/s)", standoff: 10 }, automargin: true },
+        margin: { t: 40, b: 60, l: 60, r: 20 },
+        height: 250
+    };
+
+    const graphDiv = document.getElementById('peak-wind-graph');
+    if (graphDiv && graphDiv._fullLayout) {
+        const currentLayout = graphDiv._fullLayout;
+        if (currentLayout.xaxis.range && currentLayout.yaxis.range) {
+            layout.xaxis.range = currentLayout.xaxis.range;
+            layout.yaxis.range = currentLayout.yaxis.range;
+        }
+    }
+
+    Plotly.react('peak-wind-graph', graphData, layout, config);
+};
 
         let isFirstLoad = true;
 
