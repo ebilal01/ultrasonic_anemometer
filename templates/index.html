@@ -218,14 +218,14 @@
     let prevLng = null;
     
     historyData.forEach(data => {
-        if (data.latitude && data.longitude) {
-            let lng = data.longitude;
+        if (data.iridium_latitude != null && data.iridium_longitude != null) {
+            let lng = data.iridium_longitude;
             // Adjust longitude to prevent wrapping across the date line
             if (prevLng !== null) {
                 while (lng - prevLng > 180) lng -= 360;
                 while (lng - prevLng < -180) lng += 360;
             }
-            const latLng = [data.latitude, lng];
+            const latLng = [data.iridium_latitude, lng];
             flightPath.addLatLng(latLng);
             prevLng = lng;
         }
