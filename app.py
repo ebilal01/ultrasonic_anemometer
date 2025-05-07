@@ -47,6 +47,10 @@ def load_flight_history():
 # Initialize message_history at startup
 message_history = load_flight_history()
 
+@app.route('/')
+def index():
+    return render_template('index.html')
+    
 @app.route('/rockblock', methods=['POST'])
 def handle_rockblock():
     data_json = request.get_json()
