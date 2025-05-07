@@ -47,17 +47,15 @@ def load_flight_history():
 # Initialize message_history at startup
 message_history = load_flight_history()
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
 @app.route('/rockblock', methods=['POST'])
 def handle_rockblock():
     data_json = request.get_json()
     imei = data_json.get('imei')
     data = data_json.get('data')
+    iridium_latitude = data_json.get('iridium_latitude')  # Adjust if field name differs
+    iridium_longitude = data_json.get('iridium_longitude')  # Adjust if field name differs
 
-    print(f"Received POST /rockblock - IMEI: {imei}, Data: {data}")
+    print(f"Received POST /rockblock - IMEI: {imei}, Data: {data}, Iridium Lat: {iridium_latitude}, Iridium Lon: {iridium_longitude}")
 
     if imei != "301434060195570":
         print("Invalid credentials")
@@ -90,8 +88,10 @@ def handle_rockblock():
             "sent_time": sent_time_utc,
             "unix_epoch": sensor_data[0],
             "siv": sensor_data[1],
-            "latitude": sensor_data[2],
-            "longitude": sensor_data[3],
+            "latitude": sensor_data[2],  # GPS latitude
+            "longitude": sensor_data[3],  # GPS longitude
+            "iridium_latitude": iridium_latitude if iridium_latitude is not None else None,
+            "iridium_longitude": iridium_longitude if iridium_longitude is not None else None,
             "altitude": sensor_data[4],
             "pressure_mbar": sensor_data[5],
             "temperature_pht_c": sensor_data[6],
