@@ -18,8 +18,27 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 DATA_DIR = '/opt/render/data'
 FLIGHT_HISTORY_FILE = os.path.join(DATA_DIR, 'flight_data.json')
 
-# In-memory store, initialized from disk
-message_history = []
+# Load archived flight history from the CSV in the repo (replaces the Render disk)
+FLIGHT_HISTORY_CSV = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'flight_history.csv')
+
+def load_flight_history_csv():
+    if not os.path.exists(FLIGHT_HISTORY_CSV):
+        return []
+    def convert(value):
+        for cast in (int, float):
+            try:
+                return cast(value)
+            except ValueError:
+                pass
+        return value
+    with open(FLIGHT_HISTORY_CSV, 'r', newline='') as f:
+        return [{k: convert(v) for k, v in row.items()} for row in csv.DictReader(f)]
+
+# Initialize message_history at startup
+message_history = load_flight_history_csv()
+
+# # In-memory store, initialized from disk
+# message_history = []
 
 # Ensure flight data is saved to a file
 def save_flight_data(flight_data):
@@ -44,8 +63,8 @@ def load_flight_history():
     with open(FLIGHT_HISTORY_FILE, 'r') as f:
         return json.load(f)
 
-# Initialize message_history at startup
-message_history = load_flight_history()
+# # Initialize message_history at startup
+# message_history = load_flight_history()
 
 @app.route('/')
 def index():
